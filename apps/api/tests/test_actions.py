@@ -1,3 +1,5 @@
+from uuid import uuid4
+
 VALID_PAYLOAD = {
     "title": "LED street lighting conversion",
     "sector": "energy",
@@ -7,8 +9,8 @@ VALID_PAYLOAD = {
 }
 
 
-def test_list_actions_returns_seeded(client):
-    response = client.get("/cities/1/actions")
+def test_list_actions_returns_seeded(client, seeded_city):
+    response = client.get(f"/cities/{seeded_city.id}/actions")
     assert response.status_code == 200
     actions = response.json()
     assert len(actions) == 6
@@ -19,44 +21,44 @@ def test_list_actions_returns_seeded(client):
 
 
 def test_list_actions_404_for_unknown_city(client):
-    response = client.get("/cities/999/actions")
+    response = client.get(f"/cities/{uuid4()}/actions")
     assert response.status_code == 404
 
 
-def test_create_action(client):
-    response = client.post("/cities/1/actions", json=VALID_PAYLOAD)
+def test_create_action(client, seeded_city):
+    response = client.post(f"/cities/{seeded_city.id}/actions", json=VALID_PAYLOAD)
     assert response.status_code == 201
     body = response.json()
     assert body["title"] == VALID_PAYLOAD["title"]
     assert body["sector"] == "energy"
-    assert body["city_id"] == 1
+    assert body["city_id"] == str(seeded_city.id)
     assert "id" in body
 
-    # confirm list grew by one
-    listing = client.get("/cities/1/actions").json()
+    listing = client.get(f"/cities/{seeded_city.id}/actions").json()
     assert len(listing) == 7
 
 
-def test_create_action_invalid_sector(client):
+def test_create_action_invalid_sector(client, seeded_city):
     bad = {**VALID_PAYLOAD, "sector": "nuclear"}
-    response = client.post("/cities/1/actions", json=bad)
+    response = client.post(f"/cities/{seeded_city.id}/actions", json=bad)
     assert response.status_code == 422
+    assert response.json()["error"] == "validation_error"
 
 
-def test_create_action_invalid_status(client):
+def test_create_action_invalid_status(client, seeded_city):
     bad = {**VALID_PAYLOAD, "status": "on hold"}
-    response = client.post("/cities/1/actions", json=bad)
+    response = client.post(f"/cities/{seeded_city.id}/actions", json=bad)
     assert response.status_code == 422
 
 
-def test_create_action_rejects_negative_reduction(client):
+def test_create_action_rejects_negative_reduction(client, seeded_city):
     bad = {**VALID_PAYLOAD, "annual_reduction": -5}
-    response = client.post("/cities/1/actions", json=bad)
+    response = client.post(f"/cities/{seeded_city.id}/actions", json=bad)
     assert response.status_code == 422
 
 
-def test_update_action_status(client):
-    listing = client.get("/cities/1/actions").json()
+def test_update_action_status(client, seeded_city):
+    listing = client.get(f"/cities/{seeded_city.id}/actions").json()
     action_id = listing[0]["id"]
     response = client.patch(f"/actions/{action_id}", json={"status": "completed"})
     assert response.status_code == 200
@@ -64,21 +66,21 @@ def test_update_action_status(client):
 
 
 def test_update_action_404(client):
-    response = client.patch("/actions/99999", json={"status": "completed"})
+    response = client.patch(f"/actions/{uuid4()}", json={"status": "completed"})
     assert response.status_code == 404
 
 
-def test_delete_action(client):
-    listing = client.get("/cities/1/actions").json()
+def test_delete_action(client, seeded_city):
+    listing = client.get(f"/cities/{seeded_city.id}/actions").json()
     action_id = listing[0]["id"]
     response = client.delete(f"/actions/{action_id}")
     assert response.status_code == 204
 
-    remaining = client.get("/cities/1/actions").json()
+    remaining = client.get(f"/cities/{seeded_city.id}/actions").json()
     assert len(remaining) == 5
     assert action_id not in {a["id"] for a in remaining}
 
 
 def test_delete_action_404(client):
-    response = client.delete("/actions/99999")
+    response = client.delete(f"/actions/{uuid4()}")
     assert response.status_code == 404

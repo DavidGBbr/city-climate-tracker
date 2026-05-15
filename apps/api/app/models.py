@@ -1,5 +1,6 @@
 from enum import Enum
 from typing import Optional
+from uuid import UUID, uuid4
 
 from sqlmodel import Field, Relationship, SQLModel
 
@@ -25,7 +26,7 @@ class CityBase(SQLModel):
 
 
 class City(CityBase, table=True):
-    id: Optional[int] = Field(default=None, primary_key=True)
+    id: UUID = Field(default_factory=uuid4, primary_key=True)
     actions: list["Action"] = Relationship(
         back_populates="city",
         sa_relationship_kwargs={"cascade": "all, delete-orphan"},
@@ -33,7 +34,7 @@ class City(CityBase, table=True):
 
 
 class CityRead(CityBase):
-    id: int
+    id: UUID
 
 
 class CityUpdate(SQLModel):
@@ -51,8 +52,8 @@ class ActionBase(SQLModel):
 
 
 class Action(ActionBase, table=True):
-    id: Optional[int] = Field(default=None, primary_key=True)
-    city_id: int = Field(foreign_key="city.id", index=True)
+    id: UUID = Field(default_factory=uuid4, primary_key=True)
+    city_id: UUID = Field(foreign_key="city.id", index=True)
     city: Optional[City] = Relationship(back_populates="actions")
 
 
@@ -61,8 +62,8 @@ class ActionCreate(ActionBase):
 
 
 class ActionRead(ActionBase):
-    id: int
-    city_id: int
+    id: UUID
+    city_id: UUID
 
 
 class ActionUpdate(SQLModel):
