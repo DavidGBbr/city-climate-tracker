@@ -1,0 +1,77 @@
+from enum import Enum
+from typing import Optional
+
+from sqlmodel import Field, Relationship, SQLModel
+
+
+class Sector(str, Enum):
+    transport = "transport"
+    energy = "energy"
+    buildings = "buildings"
+    waste = "waste"
+    land_use = "land use"
+
+
+class ActionStatus(str, Enum):
+    planned = "planned"
+    in_progress = "in progress"
+    completed = "completed"
+
+
+class CityBase(SQLModel):
+    name: str
+    baseline_emissions: float = Field(ge=0, description="Annual CO2 baseline in tons")
+    target_year: int = Field(ge=1900, le=2100, description="Year to reach net zero")
+
+
+class City(CityBase, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+    actions: list["Action"] = Relationship(
+        back_populates="city",
+        sa_relationship_kwargs={"cascade": "all, delete-orphan"},
+    )
+
+
+class CityRead(CityBase):
+    id: int
+
+
+class CityUpdate(SQLModel):
+    name: Optional[str] = None
+    baseline_emissions: Optional[float] = Field(default=None, ge=0)
+    target_year: Optional[int] = Field(default=None, ge=1900, le=2100)
+
+
+class ActionBase(SQLModel):
+    title: str
+    sector: Sector
+    annual_reduction: float = Field(ge=0, description="Estimated tons CO2/year")
+    status: ActionStatus
+    start_year: int = Field(ge=1900, le=2100)
+
+
+class Action(ActionBase, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+    city_id: int = Field(foreign_key="city.id", index=True)
+    city: Optional[City] = Relationship(back_populates="actions")
+
+
+class ActionCreate(ActionBase):
+    pass
+
+
+class ActionRead(ActionBase):
+    id: int
+    city_id: int
+
+
+class ActionUpdate(SQLModel):
+    title: Optional[str] = None
+    sector: Optional[Sector] = None
+    annual_reduction: Optional[float] = Field(default=None, ge=0)
+    status: Optional[ActionStatus] = None
+    start_year: Optional[int] = Field(default=None, ge=1900, le=2100)
+
+
+class ActionDraft(ActionBase):
+    """LLM-extracted action — not persisted, returned for admin review."""
