@@ -12,6 +12,7 @@ from starlette.exceptions import HTTPException as StarletteHTTPException
 from .db import get_engine, get_session, init_db
 from .routers import actions as actions_router
 from .routers import cities as cities_router
+from .routers import extract as extract_router
 from .routers import summary as summary_router
 from .seed import seed_if_empty
 
@@ -84,6 +85,7 @@ async def unhandled_exception_handler(request: Request, exc: Exception):
 app.include_router(cities_router.router)
 app.include_router(actions_router.router)
 app.include_router(summary_router.router)
+app.include_router(extract_router.router)
 
 
 @app.get("/")
