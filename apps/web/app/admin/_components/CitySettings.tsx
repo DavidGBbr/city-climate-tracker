@@ -2,6 +2,12 @@
 
 import { FormEvent, useEffect, useState } from "react";
 
+import {
+  Button,
+  ErrorMessage,
+  Field,
+  SuccessMessage,
+} from "@/components/forms";
 import { ApiError, api } from "@/lib/api";
 import { revalidateCity, useDefaultCity } from "@/lib/hooks";
 import { City, CityUpdateSchema } from "@/lib/schemas";
@@ -18,11 +24,7 @@ export function CitySettings() {
   }
 
   if (error || !city) {
-    return (
-      <p role="alert" className="rounded bg-red-50 px-3 py-2 text-sm text-red-700">
-        Could not load city configuration.
-      </p>
-    );
+    return <ErrorMessage>Could not load city configuration.</ErrorMessage>;
   }
 
   return <CitySettingsForm city={city} />;
@@ -37,7 +39,6 @@ function CitySettingsForm({ city }: { city: City }) {
   const [formError, setFormError] = useState<string | null>(null);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
 
-  // Re-sync local form state when the upstream city revalidates.
   useEffect(() => {
     setName(city.name);
     setBaseline(String(city.baseline_emissions));
@@ -133,95 +134,15 @@ function CitySettingsForm({ city }: { city: City }) {
         required
       />
 
-      {formError && (
-        <p
-          role="alert"
-          className="rounded bg-red-50 px-3 py-2 text-sm text-red-700"
-        >
-          {formError}
-        </p>
-      )}
-
-      {statusMessage && (
-        <p
-          role="status"
-          aria-live="polite"
-          className="rounded bg-emerald-50 px-3 py-2 text-sm text-emerald-700"
-        >
-          {statusMessage}
-        </p>
-      )}
+      {formError && <ErrorMessage>{formError}</ErrorMessage>}
+      {statusMessage && <SuccessMessage>{statusMessage}</SuccessMessage>}
 
       <div className="flex items-center gap-3">
-        <button
-          type="submit"
-          disabled={saving}
-          className="inline-flex items-center rounded-md bg-emerald-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-emerald-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:bg-emerald-400"
-        >
+        <Button type="submit" disabled={saving}>
           {saving ? "Saving…" : "Save changes"}
-        </button>
+        </Button>
         <span className="text-xs text-slate-500">city id: {city.id}</span>
       </div>
     </form>
-  );
-}
-
-type FieldProps = {
-  id: string;
-  label: string;
-  value: string;
-  onChange: (next: string) => void;
-  error?: string;
-  type?: "text" | "number";
-  inputMode?: "text" | "numeric" | "decimal";
-  min?: number;
-  max?: number;
-  step?: string;
-  autoComplete?: string;
-  required?: boolean;
-};
-
-function Field({
-  id,
-  label,
-  value,
-  onChange,
-  error,
-  type = "text",
-  inputMode,
-  min,
-  max,
-  step,
-  autoComplete,
-  required,
-}: FieldProps) {
-  const errorId = error ? `${id}-error` : undefined;
-  return (
-    <div className="space-y-1">
-      <label htmlFor={id} className="block text-sm font-medium text-slate-700">
-        {label}
-      </label>
-      <input
-        id={id}
-        name={id}
-        type={type}
-        inputMode={inputMode}
-        min={min}
-        max={max}
-        step={step}
-        autoComplete={autoComplete}
-        required={required}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        aria-invalid={Boolean(error)}
-        aria-describedby={errorId}
-        className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm placeholder:text-slate-400 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
-      />
-      {error && (
-        <p id={errorId} className="text-xs text-red-600">
-          {error}
-        </p>
-      )}
-    </div>
   );
 }
