@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useEffect, useState } from "react";
+import { FormEvent, useEffect, useRef, useState } from "react";
 
 import {
   Button,
@@ -14,6 +14,7 @@ import { revalidateCity, useActions, useDefaultCity } from "@/lib/hooks";
 import {
   Action,
   ActionBaseSchema,
+  ActionDraft,
   SECTOR_LABELS,
   SECTORS,
   STATUS_LABELS,
@@ -48,12 +49,48 @@ const STATUS_OPTIONS = STATUSES.map((value) => ({
   label: STATUS_LABELS[value],
 }));
 
-export function ActionsManager() {
+function draftToFormState(draft: ActionDraft): FormState {
+  return {
+    title: draft.title,
+    sector: draft.sector,
+    annual_reduction: String(draft.annual_reduction),
+    status: draft.status,
+    start_year: String(draft.start_year),
+  };
+}
+
+function actionToFormState(action: Action): FormState {
+  return {
+    title: action.title,
+    sector: action.sector,
+    annual_reduction: String(action.annual_reduction),
+    status: action.status,
+    start_year: String(action.start_year),
+  };
+}
+
+export type ActionsManagerProps = {
+  initialDraft?: ActionDraft | null;
+  onDraftConsumed?: () => void;
+};
+
+export function ActionsManager({
+  initialDraft = null,
+  onDraftConsumed,
+}: ActionsManagerProps = {}) {
   const { city, isLoading: cityLoading, error: cityError } = useDefaultCity();
   const { data: actions, isLoading, error } = useActions(city?.id);
   const [editing, setEditing] = useState<Action | null>(null);
   const [deleting, setDeleting] = useState<string | null>(null);
   const [deleteError, setDeleteError] = useState<string | null>(null);
+  const formRef = useRef<HTMLDivElement>(null);
+
+  // Scroll the form into view when a draft arrives from AI import.
+  useEffect(() => {
+    if (initialDraft && formRef.current) {
+      formRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }, [initialDraft]);
 
   if (cityLoading) {
     return (
@@ -97,12 +134,25 @@ export function ActionsManager() {
         </p>
       </header>
 
-      <ActionForm
-        cityId={city.id}
-        action={editing}
-        onSaved={() => setEditing(null)}
-        onCancel={editing ? () => setEditing(null) : undefined}
-      />
+      <div ref={formRef}>
+        <ActionForm
+          cityId={city.id}
+          action={editing}
+          initialDraft={editing ? null : initialDraft}
+          onSaved={() => {
+            setEditing(null);
+            onDraftConsumed?.();
+          }}
+          onCancel={
+            editing || initialDraft
+              ? () => {
+                  setEditing(null);
+                  onDraftConsumed?.();
+                }
+              : undefined
+          }
+        />
+      </div>
 
       {deleteError && <ErrorMessage>{deleteError}</ErrorMessage>}
 
@@ -198,11 +248,18 @@ export function ActionsManager() {
 type ActionFormProps = {
   cityId: string;
   action: Action | null;
+  initialDraft?: ActionDraft | null;
   onSaved: () => void;
   onCancel?: () => void;
 };
 
-function ActionForm({ cityId, action, onSaved, onCancel }: ActionFormProps) {
+function ActionForm({
+  cityId,
+  action,
+  initialDraft = null,
+  onSaved,
+  onCancel,
+}: ActionFormProps) {
   const [form, setForm] = useState<FormState>(EMPTY_FORM);
   const [saving, setSaving] = useState(false);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
@@ -214,17 +271,13 @@ function ActionForm({ cityId, action, onSaved, onCancel }: ActionFormProps) {
     setFormError(null);
     setSuccess(null);
     if (action) {
-      setForm({
-        title: action.title,
-        sector: action.sector,
-        annual_reduction: String(action.annual_reduction),
-        status: action.status,
-        start_year: String(action.start_year),
-      });
+      setForm(actionToFormState(action));
+    } else if (initialDraft) {
+      setForm(draftToFormState(initialDraft));
     } else {
       setForm(EMPTY_FORM);
     }
-  }, [action]);
+  }, [action, initialDraft]);
 
   function update<K extends keyof FormState>(key: K, value: FormState[K]) {
     setForm((prev) => ({ ...prev, [key]: value }));
@@ -275,6 +328,12 @@ function ActionForm({ cityId, action, onSaved, onCancel }: ActionFormProps) {
   }
 
   const isEditing = action !== null;
+  const fromDraft = !isEditing && initialDraft !== null;
+  const headingText = isEditing
+    ? `Edit: ${action!.title}`
+    : fromDraft
+      ? "Review AI draft"
+      : "Add a new action";
 
   return (
     <form
@@ -285,10 +344,12 @@ function ActionForm({ cityId, action, onSaved, onCancel }: ActionFormProps) {
     >
       <div className="space-y-1">
         <h3 id="action-form-heading" className="text-base font-semibold">
-          {isEditing ? `Edit: ${action!.title}` : "Add a new action"}
+          {headingText}
         </h3>
         <p className="text-sm text-slate-500">
-          Each action contributes its annual reduction toward the baseline.
+          {fromDraft
+            ? "AI-extracted fields below — edit anything before saving."
+            : "Each action contributes its annual reduction toward the baseline."}
         </p>
       </div>
 
@@ -361,7 +422,9 @@ function ActionForm({ cityId, action, onSaved, onCancel }: ActionFormProps) {
             ? "Saving…"
             : isEditing
               ? "Save changes"
-              : "Add action"}
+              : fromDraft
+                ? "Save draft as action"
+                : "Add action"}
         </Button>
         {onCancel && (
           <Button
