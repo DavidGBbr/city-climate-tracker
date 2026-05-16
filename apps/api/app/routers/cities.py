@@ -1,13 +1,18 @@
 from uuid import UUID
 
 from fastapi import APIRouter, Depends
-from sqlmodel import Session
+from sqlmodel import Session, select
 
 from ..common import get_or_404
 from ..db import get_session
 from ..models import City, CityRead, CityUpdate
 
 router = APIRouter(prefix="/cities", tags=["cities"])
+
+
+@router.get("", response_model=list[CityRead])
+def list_cities(session: Session = Depends(get_session)):
+    return session.exec(select(City).order_by(City.name)).all()
 
 
 @router.get("/{city_id}", response_model=CityRead)

@@ -1,6 +1,16 @@
 from uuid import uuid4
 
 
+def test_list_cities_returns_seeded(client, seeded_city):
+    response = client.get("/cities")
+    assert response.status_code == 200
+    body = response.json()
+    assert isinstance(body, list)
+    assert len(body) == 1
+    assert body[0]["id"] == str(seeded_city.id)
+    assert body[0]["name"] == "Greenville"
+
+
 def test_get_city_returns_greenville_seed(client, seeded_city):
     response = client.get(f"/cities/{seeded_city.id}")
     assert response.status_code == 200
