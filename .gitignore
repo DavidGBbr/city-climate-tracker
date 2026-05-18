@@ -34,6 +34,10 @@ yarn-error.log*
 *.swp
 .DS_Store
 Thumbs.db
+.claude/
+
+# Stray lockfile (api uses uv, not npm)
+apps/api/package-lock.json
 
 # DB
 *.sqlite
