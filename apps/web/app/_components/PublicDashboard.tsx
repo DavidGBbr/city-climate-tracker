@@ -1,17 +1,26 @@
 "use client";
 
 import { ErrorMessage } from "@/components/forms";
-import { useDefaultCity, useSummary } from "@/lib/hooks";
 import {
+  useActions,
+  useDefaultCity,
+  useSummary,
+} from "@/lib/hooks";
+import {
+  ActionSchema,
   SECTOR_LABELS,
   Sector,
   Summary,
   SummarySchema,
 } from "@/lib/schemas";
+import { z } from "zod";
+
+import { ProjectionChart } from "./ProjectionChart";
 
 export function PublicDashboard() {
   const { city, isLoading: cityLoading, error: cityError } = useDefaultCity();
   const { data: raw, isLoading, error } = useSummary(city?.id);
+  const { data: actionsRaw } = useActions(city?.id);
 
   if (cityLoading || isLoading) {
     return (
@@ -38,10 +47,23 @@ export function PublicDashboard() {
     );
   }
 
-  return <DashboardView summary={parsed.data} />;
+  const actions = z.array(ActionSchema).safeParse(actionsRaw ?? []);
+
+  return (
+    <DashboardView
+      summary={parsed.data}
+      actions={actions.success ? actions.data : []}
+    />
+  );
 }
 
-function DashboardView({ summary }: { summary: Summary }) {
+function DashboardView({
+  summary,
+  actions,
+}: {
+  summary: Summary;
+  actions: z.infer<typeof ActionSchema>[];
+}) {
   const progressPercent = Math.min(100, Math.round(summary.progress_pct * 100));
   const expectedPercent = Math.min(
     100,
@@ -78,6 +100,8 @@ function DashboardView({ summary }: { summary: Summary }) {
         />
         <OnTrackCard onTrack={summary.on_track} />
       </div>
+
+      <ProjectionChart summary={summary} actions={actions} />
 
       <SectorBreakdown
         bySector={summary.by_sector}
