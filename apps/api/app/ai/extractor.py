@@ -20,7 +20,7 @@ from typing import Any, Protocol
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_openai import ChatOpenAI
 
-from ..config import Settings, get_settings
+from ..core.config import Settings, get_settings
 from ..models import ActionDraft
 
 logger = logging.getLogger("climate_tracker.ai")

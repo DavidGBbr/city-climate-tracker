@@ -1,22 +1,17 @@
-import logging
 from contextlib import asynccontextmanager
 
-from fastapi import Depends, FastAPI, Request
-from fastapi.exceptions import RequestValidationError
+from fastapi import Depends, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
 from sqlalchemy import text
 from sqlmodel import Session
-from starlette.exceptions import HTTPException as StarletteHTTPException
 
-from .db import get_engine, get_session, init_db
+from .core.db import get_engine, get_session, init_db
+from .core.errors import register_error_handlers
 from .routers import actions as actions_router
 from .routers import cities as cities_router
 from .routers import extract as extract_router
 from .routers import summary as summary_router
 from .seed import seed_if_empty
-
-logger = logging.getLogger("climate_tracker")
 
 
 @asynccontextmanager
@@ -41,46 +36,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
-# ---- Global error handlers ---------------------------------------------------
-
-
-@app.exception_handler(RequestValidationError)
-async def validation_exception_handler(_: Request, exc: RequestValidationError):
-    return JSONResponse(
-        status_code=422,
-        content={
-            "error": "validation_error",
-            "message": "Request payload failed validation.",
-            "details": exc.errors(),
-        },
-    )
-
-
-@app.exception_handler(StarletteHTTPException)
-async def http_exception_handler(_: Request, exc: StarletteHTTPException):
-    return JSONResponse(
-        status_code=exc.status_code,
-        content={
-            "error": "http_error",
-            "message": exc.detail if isinstance(exc.detail, str) else "HTTP error.",
-        },
-    )
-
-
-@app.exception_handler(Exception)
-async def unhandled_exception_handler(request: Request, exc: Exception):
-    logger.exception("Unhandled exception on %s %s", request.method, request.url.path)
-    return JSONResponse(
-        status_code=500,
-        content={
-            "error": "internal_error",
-            "message": "An unexpected error occurred. The team has been notified.",
-        },
-    )
-
-
-# ---- Routers -----------------------------------------------------------------
+register_error_handlers(app)
 
 app.include_router(cities_router.router)
 app.include_router(actions_router.router)

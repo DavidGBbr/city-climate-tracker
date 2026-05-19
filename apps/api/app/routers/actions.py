@@ -3,8 +3,8 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, status
 from sqlmodel import Session, select
 
-from ..common import get_or_404
-from ..db import get_session
+from ..core.db import get_session
+from ..core.deps import get_or_404
 from ..models import Action, ActionCreate, ActionRead, ActionUpdate, City
 
 router = APIRouter(tags=["actions"])

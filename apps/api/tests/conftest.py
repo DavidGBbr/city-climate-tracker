@@ -5,8 +5,8 @@ from fastapi.testclient import TestClient
 from sqlalchemy.pool import StaticPool
 from sqlmodel import Session, SQLModel, create_engine, select
 
-from app import db as db_module
-from app.db import get_session
+from app.core import db as db_module
+from app.core.db import get_session
 from app.main import app
 from app.models import City
 

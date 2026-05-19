@@ -1,4 +1,4 @@
-"""Cross-cutting helpers shared by routers and services."""
+"""Cross-cutting FastAPI dependencies shared by feature routers."""
 
 from typing import TypeVar
 from uuid import UUID

@@ -17,7 +17,7 @@ import sys
 
 from sqlmodel import Session, delete, select
 
-from .db import get_engine, init_db
+from .core.db import get_engine, init_db
 from .models import Action, City
 from .seed import seed_if_empty
 
