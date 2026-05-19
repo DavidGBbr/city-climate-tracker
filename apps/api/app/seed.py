@@ -2,7 +2,9 @@
 
 from sqlmodel import Session, select
 
-from .models import Action, ActionStatus, City, Sector
+from .actions.models import Action
+from .cities.models import City
+from .core.enums import ActionStatus, Sector
 
 GREENVILLE = {
     "name": "Greenville",

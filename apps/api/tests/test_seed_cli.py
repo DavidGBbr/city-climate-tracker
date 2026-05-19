@@ -2,7 +2,8 @@
 
 from sqlmodel import Session, select
 
-from app.models import Action, City
+from app.actions.models import Action
+from app.cities.models import City
 from app.seed_cli import main
 
 

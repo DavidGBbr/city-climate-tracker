@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends
 from pydantic import BaseModel, Field
 
 from ..ai.extractor import ActionExtractor, get_extractor
-from ..models import ActionDraft
+from ..ai.schemas import ActionDraft
 
 router = APIRouter(tags=["extract"])
 

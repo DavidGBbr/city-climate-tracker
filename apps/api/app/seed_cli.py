@@ -18,7 +18,8 @@ import sys
 from sqlmodel import Session, delete, select
 
 from .core.db import get_engine, init_db
-from .models import Action, City
+from .actions.models import Action
+from .cities.models import City
 from .seed import seed_if_empty
 
 logger = logging.getLogger("climate_tracker.seed_cli")

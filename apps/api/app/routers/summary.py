@@ -4,9 +4,10 @@ from uuid import UUID
 from fastapi import APIRouter, Depends
 from sqlmodel import Session, select
 
+from ..actions.models import Action
+from ..cities.models import City
 from ..core.db import get_session
 from ..core.deps import get_or_404
-from ..models import Action, City
 from ..services.summary import build_summary
 
 router = APIRouter(prefix="/cities", tags=["summary"])

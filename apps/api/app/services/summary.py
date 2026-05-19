@@ -20,7 +20,8 @@ from dataclasses import dataclass
 from datetime import datetime, timezone
 from uuid import UUID
 
-from ..models import Action, City
+from ..actions.models import Action
+from ..cities.models import City
 
 
 @dataclass

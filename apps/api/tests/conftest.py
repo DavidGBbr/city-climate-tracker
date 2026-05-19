@@ -8,7 +8,7 @@ from sqlmodel import Session, SQLModel, create_engine, select
 from app.core import db as db_module
 from app.core.db import get_session
 from app.main import app
-from app.models import City
+from app.cities.models import City
 
 
 @pytest.fixture

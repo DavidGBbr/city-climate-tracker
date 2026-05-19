@@ -21,7 +21,7 @@ from langchain_core.prompts import ChatPromptTemplate
 from langchain_openai import ChatOpenAI
 
 from ..core.config import Settings, get_settings
-from ..models import ActionDraft
+from .schemas import ActionDraft
 
 logger = logging.getLogger("climate_tracker.ai")
 

@@ -4,7 +4,9 @@ from uuid import uuid4
 
 import pytest
 
-from app.models import Action, ActionStatus, City, Sector
+from app.actions.models import Action
+from app.cities.models import City
+from app.core.enums import ActionStatus, Sector
 from app.services.summary import build_summary
 
 

@@ -5,8 +5,9 @@ from typing import Any
 import pytest
 
 from app.ai.extractor import ActionExtractor, get_extractor
+from app.ai.schemas import ActionDraft
+from app.core.enums import ActionStatus, Sector
 from app.main import app
-from app.models import ActionDraft, ActionStatus, Sector
 
 PDF_EXAMPLE = (
     "The city council approved a $2M investment to convert all street lighting "

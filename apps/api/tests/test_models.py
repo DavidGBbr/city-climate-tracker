@@ -1,6 +1,8 @@
 from sqlmodel import select
 
-from app.models import Action, ActionStatus, City, Sector
+from app.actions.models import Action
+from app.cities.models import City
+from app.core.enums import ActionStatus, Sector
 from app.seed import seed_if_empty
 
 
