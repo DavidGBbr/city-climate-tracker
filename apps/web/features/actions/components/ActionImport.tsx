@@ -83,91 +83,120 @@ export function ActionImport({ onUseDraft }: ActionImportProps) {
   return (
     <section
       aria-labelledby="ai-import-heading"
-      className="space-y-4 rounded-lg border border-slate-200 bg-white p-6"
+      className="grid gap-10 md:grid-cols-[14rem_1fr] border-t border-ink-line/70 pt-10"
     >
-      <header className="space-y-1">
-        <h2 id="ai-import-heading" className="text-lg font-semibold">
-          AI import
+      <header className="space-y-2">
+        <p className="eyebrow text-forest-600">§ 02 · AI</p>
+        <h2
+          id="ai-import-heading"
+          className="font-display text-2xl font-semibold text-ink tracking-tight"
+        >
+          Read from policy text
         </h2>
-        <p className="text-sm text-slate-500">
-          Paste a paragraph from a policy document or meeting notes. The LLM
-          extracts a structured action you can review before saving.
+        <p className="text-sm text-ink-soft leading-relaxed">
+          Paste a paragraph; the LLM extracts a structured action draft you can
+          review before saving. Calls are idempotent per text.
         </p>
       </header>
 
-      <form onSubmit={onSubmit} noValidate className="space-y-4">
-        <TextArea
-          id="ai-import-text"
-          label="Policy or meeting note"
-          value={text}
-          onChange={setText}
-          placeholder={PLACEHOLDER}
-          rows={6}
-          hint="Minimum 20 characters. The LLM call is idempotent per text."
-          required
-        />
+      <div className="space-y-5">
+        <form onSubmit={onSubmit} noValidate className="space-y-5">
+          <TextArea
+            id="ai-import-text"
+            label="Policy or meeting note"
+            value={text}
+            onChange={setText}
+            placeholder={PLACEHOLDER}
+            rows={6}
+            hint="Minimum 20 characters."
+            required
+          />
 
-        {error && <ErrorMessage>{error}</ErrorMessage>}
+          {error && <ErrorMessage>{error}</ErrorMessage>}
 
-        <div className="flex items-center gap-3">
-          <Button type="submit" disabled={extracting}>
-            {extracting ? "Extracting…" : "Extract with AI"}
-          </Button>
-          {draft && !lifted && (
-            <Button type="button" variant="ghost" onClick={handleDiscard}>
-              Discard draft
-            </Button>
-          )}
-        </div>
-      </form>
-
-      {draft && (
-        <div
-          aria-labelledby="ai-draft-heading"
-          className="space-y-3 rounded-md border border-emerald-200 bg-emerald-50 p-4"
-        >
-          <h3
-            id="ai-draft-heading"
-            className="text-sm font-semibold text-emerald-900"
-          >
-            Extracted draft — review before saving
-          </h3>
-          <dl className="grid gap-2 text-sm text-slate-700 sm:grid-cols-2">
-            <DraftRow label="Title" value={draft.title} />
-            <DraftRow label="Sector" value={SECTOR_LABELS[draft.sector]} />
-            <DraftRow
-              label="Annual reduction"
-              value={`${draft.annual_reduction.toLocaleString()} t CO₂/year`}
-            />
-            <DraftRow label="Status" value={STATUS_LABELS[draft.status]} />
-            <DraftRow label="Start year" value={String(draft.start_year)} />
-          </dl>
           <div className="flex items-center gap-3">
-            <Button onClick={handleUseDraft} disabled={lifted}>
-              {lifted ? "Loaded into form" : "Use as new action"}
+            <Button type="submit" disabled={extracting}>
+              {extracting ? "Extracting…" : "Extract with AI →"}
             </Button>
-            <Button variant="secondary" onClick={handleDiscard}>
-              Discard
-            </Button>
+            {draft && !lifted && (
+              <Button type="button" variant="ghost" onClick={handleDiscard}>
+                Discard
+              </Button>
+            )}
           </div>
-          {lifted && (
-            <SuccessMessage>
-              Draft loaded into the action form below — edit and save it there.
-            </SuccessMessage>
-          )}
-        </div>
-      )}
+        </form>
+
+        {draft && (
+          <div
+            aria-labelledby="ai-draft-heading"
+            className="border border-forest-300 bg-forest-50/60 p-6 rounded-sharp"
+          >
+            <div className="flex items-baseline justify-between mb-4">
+              <h3
+                id="ai-draft-heading"
+                className="eyebrow text-forest-700"
+              >
+                Extracted draft — review before saving
+              </h3>
+              <span className="font-mono text-[10px] text-forest-700/70">
+                fingerprint matches
+              </span>
+            </div>
+            <dl className="grid gap-4 text-sm sm:grid-cols-2">
+              <DraftRow label="Title" value={draft.title} />
+              <DraftRow label="Sector" value={SECTOR_LABELS[draft.sector]} />
+              <DraftRow
+                label="Annual reduction"
+                value={`${draft.annual_reduction.toLocaleString()} t CO₂/yr`}
+                mono
+              />
+              <DraftRow label="Status" value={STATUS_LABELS[draft.status]} />
+              <DraftRow
+                label="Start year"
+                value={String(draft.start_year)}
+                mono
+              />
+            </dl>
+            <div className="mt-5 flex items-center gap-3">
+              <Button onClick={handleUseDraft} disabled={lifted}>
+                {lifted ? "Loaded into form" : "Use as new action →"}
+              </Button>
+              <Button variant="ghost" onClick={handleDiscard}>
+                Discard
+              </Button>
+            </div>
+            {lifted && (
+              <div className="mt-4">
+                <SuccessMessage>
+                  Draft loaded into the action form below — edit and save it
+                  there.
+                </SuccessMessage>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
     </section>
   );
 }
 
-function DraftRow({ label, value }: { label: string; value: string }) {
+function DraftRow({
+  label,
+  value,
+  mono,
+}: {
+  label: string;
+  value: string;
+  mono?: boolean;
+}) {
   return (
-    <div className="flex flex-col">
-      <dt className="text-xs uppercase tracking-wide text-emerald-700">
-        {label}
-      </dt>
-      <dd className="font-medium">{value}</dd>
+    <div className="flex flex-col gap-0.5">
+      <dt className="eyebrow text-forest-700/80">{label}</dt>
+      <dd
+        className={`text-ink ${mono ? "stat font-medium" : "font-display font-medium"}`}
+      >
+        {value}
+      </dd>
     </div>
   );
 }

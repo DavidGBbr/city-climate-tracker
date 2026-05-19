@@ -1,41 +1,54 @@
 export function OnTrackCard({ onTrack }: { onTrack: boolean }) {
-  const styles = onTrack
+  const palette = onTrack
     ? {
-        wrapper: "border-emerald-200 bg-emerald-50",
-        dot: "bg-emerald-500",
-        title: "text-emerald-900",
-        body: "text-emerald-800",
+        border: "border-forest-300",
+        bg: "bg-forest-50",
+        dot: "bg-forest-500",
+        title: "text-forest-800",
+        body: "text-forest-700",
+        label: "On track",
       }
     : {
-        wrapper: "border-red-200 bg-red-50",
-        dot: "bg-red-500",
-        title: "text-red-900",
-        body: "text-red-800",
+        border: "border-ember-400/60",
+        bg: "bg-ember-50",
+        dot: "bg-ember-500",
+        title: "text-ember-600",
+        body: "text-ember-600/90",
+        label: "Off pace",
       };
 
   return (
     <section
       aria-labelledby="status-heading"
-      className={`flex flex-col justify-center space-y-2 rounded-lg border p-6 ${styles.wrapper}`}
+      className={`flex flex-col justify-between gap-6 p-8 rounded-sharp shadow-card border ${palette.border} ${palette.bg}`}
     >
-      <h2 id="status-heading" className="text-sm font-medium text-slate-500">
-        Status
-      </h2>
+      <div className="flex items-center justify-between">
+        <h2 id="status-heading" className="eyebrow text-ink-soft">
+          Verdict
+        </h2>
+        <span
+          aria-hidden="true"
+          className={`relative inline-flex h-2.5 w-2.5 ${palette.dot}`}
+        >
+          <span
+            className={`absolute inline-flex h-full w-full rounded-full opacity-50 animate-ping ${palette.dot}`}
+          />
+          <span className={`relative inline-flex h-2.5 w-2.5 rounded-full ${palette.dot}`} />
+        </span>
+      </div>
+
       <p
         role="status"
         aria-live="polite"
-        className={`flex items-center gap-2 text-xl font-semibold ${styles.title}`}
+        className={`font-display text-3xl font-semibold leading-none tracking-tight ${palette.title}`}
       >
-        <span
-          aria-hidden="true"
-          className={`inline-block h-3 w-3 rounded-full ${styles.dot}`}
-        />
-        {onTrack ? "On track" : "Off track"}
+        {palette.label}.
       </p>
-      <p className={`text-sm ${styles.body}`}>
+
+      <p className={`text-sm leading-relaxed ${palette.body}`}>
         {onTrack
           ? "Current commitments meet or exceed the linear pacing target for this year."
-          : "Current commitments lag behind the linear pacing target for this year."}
+          : "Current commitments fall short of the linear pacing target for this year."}
       </p>
     </section>
   );

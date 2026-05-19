@@ -159,101 +159,108 @@ export function ActionForm({
       ? "Review AI draft"
       : "Add a new action";
 
+  const eyebrowText = isEditing
+    ? "Editing"
+    : fromDraft
+      ? "From AI draft"
+      : "New entry";
+
   return (
     <form
       onSubmit={onSubmit}
       noValidate
       aria-labelledby="action-form-heading"
-      className="space-y-4 rounded-lg border border-slate-200 bg-white p-6"
+      className="bg-bg-elev border border-ink-line/70 rounded-sharp shadow-card"
     >
-      <div className="space-y-1">
-        <h3 id="action-form-heading" className="text-base font-semibold">
-          {headingText}
-        </h3>
-        <p className="text-sm text-slate-500">
-          {fromDraft
-            ? "AI-extracted fields below — edit anything before saving."
-            : "Each action contributes its annual reduction toward the baseline."}
-        </p>
+      <div className="px-7 pt-6 pb-5 border-b border-ink-line/70 flex items-baseline justify-between">
+        <div>
+          <p className="eyebrow text-forest-600">{eyebrowText}</p>
+          <h3
+            id="action-form-heading"
+            className="font-display text-xl font-semibold text-ink tracking-tight mt-1"
+          >
+            {headingText}
+          </h3>
+        </div>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2">
-        <div className="sm:col-span-2">
+      <div className="px-7 py-6 space-y-6">
+        <Field
+          id="action-title"
+          label="Title"
+          value={form.title}
+          onChange={(v) => update("title", v)}
+          error={fieldErrors.title}
+          placeholder="Expand bike lane network"
+          required
+        />
+
+        <div className="grid gap-6 sm:grid-cols-2">
+          <Select
+            id="action-sector"
+            label="Sector"
+            value={form.sector}
+            onChange={(v) => update("sector", v as Sector)}
+            options={SECTOR_OPTIONS}
+            error={fieldErrors.sector}
+            required
+          />
+
+          <Select
+            id="action-status"
+            label="Status"
+            value={form.status}
+            onChange={(v) => update("status", v as Status)}
+            options={STATUS_OPTIONS}
+            error={fieldErrors.status}
+            required
+          />
+
           <Field
-            id="action-title"
-            label="Title"
-            value={form.title}
-            onChange={(v) => update("title", v)}
-            error={fieldErrors.title}
-            placeholder="Expand bike lane network"
+            id="action-reduction"
+            label="Annual reduction (t CO₂ / yr)"
+            type="number"
+            inputMode="decimal"
+            min={0}
+            step="any"
+            value={form.annual_reduction}
+            onChange={(v) => update("annual_reduction", v)}
+            error={fieldErrors.annual_reduction}
+            required
+          />
+
+          <Field
+            id="action-start"
+            label="Start year"
+            type="number"
+            inputMode="numeric"
+            min={1900}
+            max={2100}
+            value={form.start_year}
+            onChange={(v) => update("start_year", v)}
+            error={fieldErrors.start_year}
             required
           />
         </div>
 
-        <Select
-          id="action-sector"
-          label="Sector"
-          value={form.sector}
-          onChange={(v) => update("sector", v as Sector)}
-          options={SECTOR_OPTIONS}
-          error={fieldErrors.sector}
-          required
-        />
-
-        <Select
-          id="action-status"
-          label="Status"
-          value={form.status}
-          onChange={(v) => update("status", v as Status)}
-          options={STATUS_OPTIONS}
-          error={fieldErrors.status}
-          required
-        />
-
-        <Field
-          id="action-reduction"
-          label="Annual reduction (tons CO₂ / year)"
-          type="number"
-          inputMode="decimal"
-          min={0}
-          step="any"
-          value={form.annual_reduction}
-          onChange={(v) => update("annual_reduction", v)}
-          error={fieldErrors.annual_reduction}
-          required
-        />
-
-        <Field
-          id="action-start"
-          label="Start year"
-          type="number"
-          inputMode="numeric"
-          min={1900}
-          max={2100}
-          value={form.start_year}
-          onChange={(v) => update("start_year", v)}
-          error={fieldErrors.start_year}
-          required
-        />
+        {formError && <ErrorMessage>{formError}</ErrorMessage>}
+        {success && <SuccessMessage>{success}</SuccessMessage>}
       </div>
 
-      {formError && <ErrorMessage>{formError}</ErrorMessage>}
-      {success && <SuccessMessage>{success}</SuccessMessage>}
-
-      <div className="flex items-center gap-3">
+      <div className="px-7 py-5 border-t border-ink-line/70 bg-bg-sunk/40 flex items-center gap-3">
         <Button type="submit" disabled={saving}>
           {saving
             ? "Saving…"
             : isEditing
-              ? "Save changes"
+              ? "Save changes →"
               : fromDraft
-                ? "Save draft as action"
-                : "Add action"}
+                ? "Save draft as action →"
+                : "Add action →"}
         </Button>
         {onCancel && (
           <Button
             type="button"
-            variant="secondary"
+            variant="ghost"
             onClick={() => {
               setFieldErrors({});
               setFormError(null);

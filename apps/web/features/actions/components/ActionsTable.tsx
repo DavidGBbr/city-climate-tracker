@@ -13,6 +13,12 @@ export type ActionsTableProps = {
   onDelete: (action: Action) => void;
 };
 
+const STATUS_STYLES: Record<string, string> = {
+  planned: "text-ink-mute",
+  "in progress": "text-forest-600",
+  completed: "text-ink",
+};
+
 export function ActionsTable({
   actions,
   isLoading,
@@ -23,98 +29,151 @@ export function ActionsTable({
   onDelete,
 }: ActionsTableProps) {
   return (
-    <div className="overflow-x-auto rounded-lg border border-slate-200 bg-white">
-      <table className="w-full text-sm">
-        <caption className="sr-only">
-          Climate actions registered for the city
-        </caption>
-        <thead className="bg-slate-50 text-left text-xs uppercase tracking-wide text-slate-500">
-          <tr>
-            <th scope="col" className="px-4 py-2">
-              Title
-            </th>
-            <th scope="col" className="px-4 py-2">
-              Sector
-            </th>
-            <th scope="col" className="px-4 py-2 text-right">
-              Reduction (t/yr)
-            </th>
-            <th scope="col" className="px-4 py-2">
-              Status
-            </th>
-            <th scope="col" className="px-4 py-2 text-right">
-              Start year
-            </th>
-            <th scope="col" className="px-4 py-2 text-right">
-              <span className="sr-only">Row actions</span>
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          {isLoading && (
-            <tr>
-              <td colSpan={6} className="px-4 py-6 text-center text-slate-500">
-                Loading actions…
-              </td>
+    <div className="bg-bg-elev border border-ink-line/70 rounded-sharp shadow-card overflow-hidden">
+      <div className="px-7 pt-6 pb-3 border-b border-ink-line/70">
+        <p className="eyebrow">Ledger</p>
+        <h3 className="font-display text-xl font-semibold text-ink tracking-tight mt-1">
+          Actions on file
+        </h3>
+      </div>
+
+      <div className="overflow-x-auto">
+        <table className="w-full text-sm">
+          <caption className="sr-only">
+            Climate actions registered for the city
+          </caption>
+          <thead>
+            <tr className="border-b border-ink-line/60">
+              <th
+                scope="col"
+                className="eyebrow text-left px-7 py-3 text-ink-mute font-medium"
+              >
+                Title
+              </th>
+              <th
+                scope="col"
+                className="eyebrow text-left px-4 py-3 text-ink-mute font-medium"
+              >
+                Sector
+              </th>
+              <th
+                scope="col"
+                className="eyebrow text-right px-4 py-3 text-ink-mute font-medium"
+              >
+                t/yr
+              </th>
+              <th
+                scope="col"
+                className="eyebrow text-left px-4 py-3 text-ink-mute font-medium"
+              >
+                Status
+              </th>
+              <th
+                scope="col"
+                className="eyebrow text-right px-4 py-3 text-ink-mute font-medium"
+              >
+                Start
+              </th>
+              <th scope="col" className="px-7 py-3 text-right">
+                <span className="sr-only">Row actions</span>
+              </th>
             </tr>
-          )}
-          {hasError && (
-            <tr>
-              <td colSpan={6} className="px-4 py-6 text-center text-red-600">
-                Failed to load actions.
-              </td>
-            </tr>
-          )}
-          {!isLoading && !hasError && actions?.length === 0 && (
-            <tr>
-              <td colSpan={6} className="px-4 py-6 text-center text-slate-500">
-                No actions yet. Add the first one above.
-              </td>
-            </tr>
-          )}
-          {actions?.map((action) => (
-            <tr
-              key={action.id}
-              className={
-                editingId === action.id
-                  ? "border-t border-slate-200 bg-emerald-50"
-                  : "border-t border-slate-200"
-              }
-            >
-              <td className="px-4 py-2 font-medium">{action.title}</td>
-              <td className="px-4 py-2">{SECTOR_LABELS[action.sector]}</td>
-              <td className="px-4 py-2 text-right tabular-nums">
-                {action.annual_reduction.toLocaleString()}
-              </td>
-              <td className="px-4 py-2">{STATUS_LABELS[action.status]}</td>
-              <td className="px-4 py-2 text-right tabular-nums">
-                {action.start_year}
-              </td>
-              <td className="px-4 py-2 text-right">
-                <div className="inline-flex gap-2">
-                  <Button
-                    variant="secondary"
-                    size="sm"
-                    onClick={() => onEdit(action)}
-                    ariaLabel={`Edit ${action.title}`}
-                  >
-                    Edit
-                  </Button>
-                  <Button
-                    variant="danger"
-                    size="sm"
-                    disabled={deletingId === action.id}
-                    onClick={() => onDelete(action)}
-                    ariaLabel={`Delete ${action.title}`}
-                  >
-                    {deletingId === action.id ? "Deleting…" : "Delete"}
-                  </Button>
-                </div>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {isLoading && (
+              <tr>
+                <td
+                  colSpan={6}
+                  className="px-7 py-10 text-center eyebrow text-ink-mute"
+                >
+                  Loading actions…
+                </td>
+              </tr>
+            )}
+            {hasError && (
+              <tr>
+                <td
+                  colSpan={6}
+                  className="px-7 py-10 text-center eyebrow text-ember-600"
+                >
+                  Failed to load actions.
+                </td>
+              </tr>
+            )}
+            {!isLoading && !hasError && actions?.length === 0 && (
+              <tr>
+                <td
+                  colSpan={6}
+                  className="px-7 py-10 text-center eyebrow text-ink-mute"
+                >
+                  No actions yet. Add the first one above.
+                </td>
+              </tr>
+            )}
+            {actions?.map((action) => (
+              <tr
+                key={action.id}
+                className={
+                  editingId === action.id
+                    ? "border-b border-ink-line/40 bg-forest-50/60"
+                    : "border-b border-ink-line/40 hover:bg-bg-sunk/40 transition-colors"
+                }
+              >
+                <td className="px-7 py-4 font-display font-medium text-ink">
+                  {action.title}
+                </td>
+                <td className="px-4 py-4 text-ink-soft">
+                  {SECTOR_LABELS[action.sector]}
+                </td>
+                <td className="px-4 py-4 text-right stat text-ink">
+                  {action.annual_reduction.toLocaleString()}
+                </td>
+                <td
+                  className={`px-4 py-4 eyebrow ${STATUS_STYLES[action.status]}`}
+                >
+                  <span className="inline-flex items-center gap-1.5">
+                    <span
+                      aria-hidden
+                      className={`h-1.5 w-1.5 rounded-full ${
+                        action.status === "completed"
+                          ? "bg-ink"
+                          : action.status === "in progress"
+                            ? "bg-forest-500"
+                            : "bg-ink-line"
+                      }`}
+                    />
+                    {STATUS_LABELS[action.status]}
+                  </span>
+                </td>
+                <td className="px-4 py-4 text-right stat text-ink-soft">
+                  {action.start_year}
+                </td>
+                <td className="px-7 py-4 text-right">
+                  <div className="inline-flex gap-1.5">
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      onClick={() => onEdit(action)}
+                      ariaLabel={`Edit ${action.title}`}
+                    >
+                      Edit
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      disabled={deletingId === action.id}
+                      onClick={() => onDelete(action)}
+                      ariaLabel={`Delete ${action.title}`}
+                    >
+                      {deletingId === action.id ? "Deleting…" : "Delete"}
+                    </Button>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }

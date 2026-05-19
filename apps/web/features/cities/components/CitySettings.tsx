@@ -18,11 +18,7 @@ export function CitySettings() {
   const { city, isLoading, error } = useDefaultCity();
 
   if (isLoading) {
-    return (
-      <p role="status" aria-live="polite" className="text-sm text-slate-500">
-        Loading city…
-      </p>
-    );
+    return <p className="eyebrow text-ink-mute">Loading city…</p>;
   }
 
   if (error || !city) {
@@ -85,66 +81,72 @@ function CitySettingsForm({ city }: { city: City }) {
   }
 
   return (
-    <form
-      onSubmit={onSubmit}
-      noValidate
+    <section
       aria-labelledby="city-settings-heading"
-      className="max-w-xl space-y-4 rounded-lg border border-slate-200 bg-white p-6"
+      className="grid gap-10 md:grid-cols-[14rem_1fr] border-t border-ink-line/70 pt-10"
     >
-      <div className="space-y-1">
-        <h2 id="city-settings-heading" className="text-lg font-semibold">
-          City settings
+      <header className="space-y-2">
+        <p className="eyebrow text-forest-600">§ 01</p>
+        <h2
+          id="city-settings-heading"
+          className="font-display text-2xl font-semibold text-ink tracking-tight"
+        >
+          City profile
         </h2>
-        <p className="text-sm text-slate-500">
-          Baseline emissions and the target year drive the on-track calculation.
+        <p className="text-sm text-ink-soft leading-relaxed">
+          Baseline emissions and the target year drive the on-track
+          calculation. <code className="font-mono text-[11px] text-ink-mute">id={city.id.slice(0, 8)}…</code>
         </p>
-      </div>
+      </header>
 
-      <Field
-        id="city-name"
-        label="City name"
-        value={name}
-        onChange={setName}
-        error={fieldErrors.name}
-        autoComplete="off"
-        required
-      />
+      <form onSubmit={onSubmit} noValidate className="max-w-xl space-y-6">
+        <Field
+          id="city-name"
+          label="City name"
+          value={name}
+          onChange={setName}
+          error={fieldErrors.name}
+          autoComplete="off"
+          required
+        />
 
-      <Field
-        id="city-baseline"
-        label="Baseline emissions (tons CO₂ / year)"
-        type="number"
-        inputMode="decimal"
-        min={0}
-        step="any"
-        value={baseline}
-        onChange={setBaseline}
-        error={fieldErrors.baseline_emissions}
-        required
-      />
+        <div className="grid gap-6 sm:grid-cols-2">
+          <Field
+            id="city-baseline"
+            label="Baseline emissions (t CO₂ / yr)"
+            type="number"
+            inputMode="decimal"
+            min={0}
+            step="any"
+            value={baseline}
+            onChange={setBaseline}
+            error={fieldErrors.baseline_emissions}
+            required
+          />
 
-      <Field
-        id="city-target"
-        label="Target year (net zero)"
-        type="number"
-        inputMode="numeric"
-        min={1900}
-        max={2100}
-        value={target}
-        onChange={setTarget}
-        error={fieldErrors.target_year}
-        required
-      />
+          <Field
+            id="city-target"
+            label="Target year (net zero)"
+            type="number"
+            inputMode="numeric"
+            min={1900}
+            max={2100}
+            value={target}
+            onChange={setTarget}
+            error={fieldErrors.target_year}
+            required
+          />
+        </div>
 
-      {formError && <ErrorMessage>{formError}</ErrorMessage>}
-      {statusMessage && <SuccessMessage>{statusMessage}</SuccessMessage>}
+        {formError && <ErrorMessage>{formError}</ErrorMessage>}
+        {statusMessage && <SuccessMessage>{statusMessage}</SuccessMessage>}
 
-      <div className="flex items-center gap-3">
-        <Button type="submit" disabled={saving}>
-          {saving ? "Saving…" : "Save changes"}
-        </Button>
-        <span className="text-xs text-slate-500">city id: {city.id}</span>
-      </div>
-    </form>
+        <div className="flex items-center gap-4 pt-2">
+          <Button type="submit" disabled={saving}>
+            {saving ? "Saving…" : "Save changes →"}
+          </Button>
+        </div>
+      </form>
+    </section>
   );
 }

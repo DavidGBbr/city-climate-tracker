@@ -6,12 +6,13 @@ export type ButtonVariant = "primary" | "secondary" | "danger" | "ghost";
 
 const BUTTON_STYLES: Record<ButtonVariant, string> = {
   primary:
-    "bg-emerald-600 text-white hover:bg-emerald-700 disabled:bg-emerald-400",
+    "bg-ink text-bg hover:bg-forest-700 disabled:bg-ink-mute disabled:text-bg",
   secondary:
-    "bg-white text-slate-700 border border-slate-300 hover:bg-slate-50 disabled:text-slate-400",
-  danger: "bg-red-600 text-white hover:bg-red-700 disabled:bg-red-400",
+    "bg-transparent text-ink border border-ink-line hover:border-ink hover:bg-bg-elev disabled:text-ink-mute",
+  danger:
+    "bg-ember-500 text-bg hover:bg-ember-600 disabled:bg-ember-400 disabled:text-bg",
   ghost:
-    "bg-transparent text-slate-600 hover:bg-slate-100 disabled:text-slate-400",
+    "bg-transparent text-ink-soft hover:text-ink hover:bg-bg-sunk disabled:text-ink-mute",
 };
 
 export type ButtonProps = {
@@ -33,14 +34,17 @@ export function Button({
   size = "md",
   ariaLabel,
 }: ButtonProps) {
-  const sizing = size === "sm" ? "px-3 py-1.5 text-xs" : "px-4 py-2 text-sm";
+  const sizing =
+    size === "sm"
+      ? "px-3 py-1.5 text-[11px] tracking-eyebrow uppercase font-medium"
+      : "px-5 py-2.5 text-[12px] tracking-eyebrow uppercase font-medium";
   return (
     <button
       type={type}
       disabled={disabled}
       onClick={onClick}
       aria-label={ariaLabel}
-      className={`inline-flex items-center justify-center rounded-md font-medium shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed ${sizing} ${BUTTON_STYLES[variant]}`}
+      className={`group inline-flex items-center justify-center gap-2 rounded-sharp transition-colors focus:outline-none focus-visible:ring-1 focus-visible:ring-offset-2 focus-visible:ring-ink focus-visible:ring-offset-bg disabled:cursor-not-allowed ${sizing} ${BUTTON_STYLES[variant]}`}
     >
       {children}
     </button>

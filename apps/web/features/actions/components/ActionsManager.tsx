@@ -28,7 +28,6 @@ export function ActionsManager({
   const [deleteError, setDeleteError] = useState<string | null>(null);
   const formRef = useRef<HTMLDivElement>(null);
 
-  // Scroll the form into view when a draft arrives from AI import.
   useEffect(() => {
     if (initialDraft && formRef.current) {
       formRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -36,11 +35,7 @@ export function ActionsManager({
   }, [initialDraft]);
 
   if (cityLoading) {
-    return (
-      <p role="status" aria-live="polite" className="text-sm text-slate-500">
-        Loading…
-      </p>
-    );
+    return <p className="eyebrow text-ink-mute">Loading…</p>;
   }
   if (cityError || !city) {
     return <ErrorMessage>Could not load city configuration.</ErrorMessage>;
@@ -67,47 +62,63 @@ export function ActionsManager({
   }
 
   return (
-    <section aria-labelledby="actions-heading" className="space-y-4">
-      <header className="space-y-1">
-        <h2 id="actions-heading" className="text-lg font-semibold">
+    <section
+      aria-labelledby="actions-heading"
+      className="grid gap-10 md:grid-cols-[14rem_1fr] border-t border-ink-line/70 pt-10"
+    >
+      <header className="space-y-2 md:sticky md:top-28 self-start">
+        <p className="eyebrow text-forest-600">§ 03</p>
+        <h2
+          id="actions-heading"
+          className="font-display text-2xl font-semibold text-ink tracking-tight"
+        >
           Climate actions
         </h2>
-        <p className="text-sm text-slate-500">
-          Add, edit, or remove the actions counted toward the reduction target.
+        <p className="text-sm text-ink-soft leading-relaxed">
+          The ledger. Add, edit, or remove the actions counted toward the
+          reduction target.
         </p>
+        {actions && (
+          <p className="eyebrow text-ink-mute pt-1">
+            {actions.length}{" "}
+            {actions.length === 1 ? "entry" : "entries"} on file
+          </p>
+        )}
       </header>
 
-      <div ref={formRef}>
-        <ActionForm
-          cityId={city.id}
-          action={editing}
-          initialDraft={editing ? null : initialDraft}
-          onSaved={() => {
-            setEditing(null);
-            onDraftConsumed?.();
-          }}
-          onCancel={
-            editing || initialDraft
-              ? () => {
-                  setEditing(null);
-                  onDraftConsumed?.();
-                }
-              : undefined
-          }
+      <div className="space-y-6 min-w-0">
+        <div ref={formRef}>
+          <ActionForm
+            cityId={city.id}
+            action={editing}
+            initialDraft={editing ? null : initialDraft}
+            onSaved={() => {
+              setEditing(null);
+              onDraftConsumed?.();
+            }}
+            onCancel={
+              editing || initialDraft
+                ? () => {
+                    setEditing(null);
+                    onDraftConsumed?.();
+                  }
+                : undefined
+            }
+          />
+        </div>
+
+        {deleteError && <ErrorMessage>{deleteError}</ErrorMessage>}
+
+        <ActionsTable
+          actions={actions}
+          isLoading={isLoading}
+          hasError={Boolean(error)}
+          editingId={editing?.id ?? null}
+          deletingId={deleting}
+          onEdit={setEditing}
+          onDelete={handleDelete}
         />
       </div>
-
-      {deleteError && <ErrorMessage>{deleteError}</ErrorMessage>}
-
-      <ActionsTable
-        actions={actions}
-        isLoading={isLoading}
-        hasError={Boolean(error)}
-        editingId={editing?.id ?? null}
-        deletingId={deleting}
-        onEdit={setEditing}
-        onDelete={handleDelete}
-      />
     </section>
   );
 }

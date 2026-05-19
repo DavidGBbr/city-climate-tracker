@@ -37,12 +37,15 @@ export function Field({
   const hintId = hint ? `${id}-hint` : undefined;
   const describedBy = [errorId, hintId].filter(Boolean).join(" ") || undefined;
   return (
-    <div className="space-y-1">
-      <label htmlFor={id} className="block text-sm font-medium text-slate-700">
+    <div className="space-y-1.5">
+      <label
+        htmlFor={id}
+        className="eyebrow text-ink-soft flex items-center gap-1"
+      >
         {label}
         {required && (
-          <span aria-hidden="true" className="text-red-600">
-            {" *"}
+          <span aria-hidden="true" className="text-forest-600">
+            *
           </span>
         )}
       </label>
@@ -61,15 +64,17 @@ export function Field({
         onChange={(e) => onChange(e.target.value)}
         aria-invalid={Boolean(error)}
         aria-describedby={describedBy}
-        className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm placeholder:text-slate-400 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+        className={`w-full bg-transparent border-b border-ink-line px-0 py-2 text-base font-display text-ink placeholder:text-ink-mute focus:border-ink focus:outline-none transition-colors ${
+          type === "number" ? "stat" : ""
+        } ${error ? "border-ember-500" : ""}`}
       />
       {hint && (
-        <p id={hintId} className="text-xs text-slate-500">
+        <p id={hintId} className="text-[11px] text-ink-mute">
           {hint}
         </p>
       )}
       {error && (
-        <p id={errorId} className="text-xs text-red-600">
+        <p id={errorId} className="text-[11px] text-ember-600">
           {error}
         </p>
       )}

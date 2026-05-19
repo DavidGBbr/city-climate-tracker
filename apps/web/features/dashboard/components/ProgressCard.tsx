@@ -14,52 +14,74 @@ export function ProgressCard({
   return (
     <section
       aria-labelledby="progress-heading"
-      className="space-y-3 rounded-lg border border-slate-200 bg-white p-6 lg:col-span-2"
+      className="lg:col-span-2 bg-bg-elev border border-ink-line/70 p-8 rounded-sharp shadow-card"
     >
-      <h2 id="progress-heading" className="text-sm font-medium text-slate-500">
-        Reductions vs baseline
-      </h2>
-      <p className="flex items-baseline gap-2">
-        <span className="text-4xl font-bold tabular-nums text-slate-900">
+      <div className="flex items-baseline justify-between gap-4">
+        <h2
+          id="progress-heading"
+          className="eyebrow"
+        >
+          Reductions secured vs. baseline
+        </h2>
+        <span className="eyebrow text-forest-600">
+          {progressPercent}% covered
+        </span>
+      </div>
+
+      <p className="mt-5 flex items-baseline gap-3">
+        <span className="stat font-display text-5xl font-semibold text-ink leading-none tracking-tight">
           {summary.total_reduction.toLocaleString()}
         </span>
-        <span className="text-sm text-slate-500">
-          / {summary.baseline_emissions.toLocaleString()} t CO₂/yr
+        <span className="text-sm text-ink-mute">
+          /{" "}
+          <span className="stat">
+            {summary.baseline_emissions.toLocaleString()}
+          </span>{" "}
+          t CO₂/yr
         </span>
       </p>
-      <div
-        role="progressbar"
-        aria-label={`Progress toward ${summary.city_name}'s net-zero target`}
-        aria-valuenow={progressPercent}
-        aria-valuemin={0}
-        aria-valuemax={100}
-        aria-valuetext={`${progressPercent}% of baseline covered`}
-        className="relative h-3 overflow-hidden rounded-full bg-slate-100"
-      >
-        <span
-          aria-hidden="true"
-          className={`absolute inset-y-0 left-0 ${
-            summary.on_track ? "bg-emerald-500" : "bg-red-500"
-          }`}
-          style={{ width: `${progressPercent}%` }}
-        />
-        {/* Expected pacing marker */}
-        {expectedPercent > 0 && expectedPercent <= 100 && (
+
+      <div className="mt-7 space-y-2.5">
+        <div
+          role="progressbar"
+          aria-label={`Progress toward ${summary.city_name}'s net-zero target`}
+          aria-valuenow={progressPercent}
+          aria-valuemin={0}
+          aria-valuemax={100}
+          aria-valuetext={`${progressPercent}% of baseline covered`}
+          className="relative h-2 overflow-visible bg-bg-sunk"
+        >
           <span
             aria-hidden="true"
-            title={`Expected pacing: ${expectedPercent}%`}
-            className="absolute inset-y-0 w-px bg-slate-700"
-            style={{ left: `${expectedPercent}%` }}
+            className={`absolute inset-y-0 left-0 transition-[width] duration-700 ${
+              summary.on_track ? "bg-forest-500" : "bg-ember-500"
+            }`}
+            style={{ width: `${progressPercent}%` }}
           />
-        )}
+          {expectedPercent > 0 && expectedPercent <= 100 && (
+            <span
+              aria-hidden="true"
+              title={`Expected pacing: ${expectedPercent}%`}
+              className="absolute -top-1.5 -bottom-1.5 w-px bg-ink"
+              style={{ left: `${expectedPercent}%` }}
+            />
+          )}
+        </div>
+        <div className="flex justify-between text-[11px] text-ink-mute font-mono">
+          <span>0</span>
+          <span aria-hidden>
+            ▲ pacing target {expectedPercent}%
+          </span>
+          <span>100</span>
+        </div>
       </div>
-      <p className="text-xs text-slate-500">
-        <span className="font-medium text-slate-700">{progressPercent}%</span>{" "}
-        of baseline covered ·{" "}
-        <span className="font-medium text-slate-700">
+
+      <p className="mt-6 text-sm text-ink-soft leading-relaxed">
+        <span className="stat font-medium text-ink">
           {summary.remaining_to_target.toLocaleString()} t/yr
         </span>{" "}
-        remaining to net zero · pacing target {expectedPercent}% (vertical line)
+        of further annual reductions still required to reach net zero by{" "}
+        {summary.target_year}.
       </p>
     </section>
   );

@@ -4,9 +4,12 @@ export function ErrorMessage({ children }: { children: ReactNode }) {
   return (
     <p
       role="alert"
-      className="rounded bg-red-50 px-3 py-2 text-sm text-red-700"
+      className="flex items-start gap-2 border-l-2 border-ember-500 bg-ember-50/60 px-3 py-2 text-sm text-ember-600"
     >
-      {children}
+      <span aria-hidden className="font-mono text-xs mt-[2px]">
+        ⚠
+      </span>
+      <span>{children}</span>
     </p>
   );
 }
@@ -16,9 +19,12 @@ export function SuccessMessage({ children }: { children: ReactNode }) {
     <p
       role="status"
       aria-live="polite"
-      className="rounded bg-emerald-50 px-3 py-2 text-sm text-emerald-700"
+      className="flex items-start gap-2 border-l-2 border-forest-500 bg-forest-50 px-3 py-2 text-sm text-forest-700"
     >
-      {children}
+      <span aria-hidden className="font-mono text-xs mt-[2px]">
+        ✓
+      </span>
+      <span>{children}</span>
     </p>
   );
 }

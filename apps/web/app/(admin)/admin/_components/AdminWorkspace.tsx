@@ -11,7 +11,7 @@ export function AdminWorkspace() {
   const [draft, setDraft] = useState<ActionDraft | null>(null);
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-2">
       <CitySettings />
       <ActionImport onUseDraft={setDraft} />
       <ActionsManager
