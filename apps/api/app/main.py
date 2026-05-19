@@ -5,10 +5,10 @@ from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import text
 from sqlmodel import Session
 
+from .cities.router import router as cities_router
 from .core.db import get_engine, get_session, init_db
 from .core.errors import register_error_handlers
 from .routers import actions as actions_router
-from .routers import cities as cities_router
 from .routers import extract as extract_router
 from .routers import summary as summary_router
 from .seed import seed_if_empty
@@ -38,7 +38,7 @@ app.add_middleware(
 
 register_error_handlers(app)
 
-app.include_router(cities_router.router)
+app.include_router(cities_router)
 app.include_router(actions_router.router)
 app.include_router(summary_router.router)
 app.include_router(extract_router.router)

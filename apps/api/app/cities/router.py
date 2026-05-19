@@ -5,7 +5,8 @@ from sqlmodel import Session, select
 
 from ..core.db import get_session
 from ..core.deps import get_or_404
-from ..models import City, CityRead, CityUpdate
+from .models import City
+from .schemas import CityRead, CityUpdate
 
 router = APIRouter(prefix="/cities", tags=["cities"])
 

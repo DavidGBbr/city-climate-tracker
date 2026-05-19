@@ -4,6 +4,8 @@ from uuid import UUID, uuid4
 
 from sqlmodel import Field, Relationship, SQLModel
 
+from .cities.models import City
+
 
 class Sector(str, Enum):
     transport = "transport"
@@ -17,30 +19,6 @@ class ActionStatus(str, Enum):
     planned = "planned"
     in_progress = "in progress"
     completed = "completed"
-
-
-class CityBase(SQLModel):
-    name: str
-    baseline_emissions: float = Field(ge=0, description="Annual CO2 baseline in tons")
-    target_year: int = Field(ge=1900, le=2100, description="Year to reach net zero")
-
-
-class City(CityBase, table=True):
-    id: UUID = Field(default_factory=uuid4, primary_key=True)
-    actions: list["Action"] = Relationship(
-        back_populates="city",
-        sa_relationship_kwargs={"cascade": "all, delete-orphan"},
-    )
-
-
-class CityRead(CityBase):
-    id: UUID
-
-
-class CityUpdate(SQLModel):
-    name: Optional[str] = None
-    baseline_emissions: Optional[float] = Field(default=None, ge=0)
-    target_year: Optional[int] = Field(default=None, ge=1900, le=2100)
 
 
 class ActionBase(SQLModel):
