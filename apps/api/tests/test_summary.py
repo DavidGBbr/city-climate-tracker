@@ -7,7 +7,7 @@ import pytest
 from app.actions.models import Action
 from app.cities.models import City
 from app.core.enums import ActionStatus, Sector
-from app.services.summary import build_summary
+from app.summary.service import build_summary
 
 
 def _city(**overrides) -> City:

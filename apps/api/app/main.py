@@ -6,12 +6,12 @@ from sqlalchemy import text
 from sqlmodel import Session
 
 from .actions.router import router as actions_router
+from .ai.router import router as ai_router
 from .cities.router import router as cities_router
 from .core.db import get_engine, get_session, init_db
 from .core.errors import register_error_handlers
-from .routers import extract as extract_router
-from .routers import summary as summary_router
 from .seed import seed_if_empty
+from .summary.router import router as summary_router
 
 
 @asynccontextmanager
@@ -40,8 +40,8 @@ register_error_handlers(app)
 
 app.include_router(cities_router)
 app.include_router(actions_router)
-app.include_router(summary_router.router)
-app.include_router(extract_router.router)
+app.include_router(summary_router)
+app.include_router(ai_router)
 
 
 @app.get("/")

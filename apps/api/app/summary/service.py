@@ -16,28 +16,11 @@ optimistic about commitments.
 """
 
 from collections import defaultdict
-from dataclasses import dataclass
 from datetime import datetime, timezone
-from uuid import UUID
 
 from ..actions.models import Action
 from ..cities.models import City
-
-
-@dataclass
-class ProgressSummary:
-    city_id: UUID
-    city_name: str
-    baseline_emissions: float
-    target_year: int
-    current_year: int
-    total_reduction: float
-    remaining_to_target: float
-    progress_pct: float
-    expected_progress_pct: float
-    on_track: bool
-    by_sector: dict[str, float]
-    action_count: int
+from .schemas import ProgressSummary
 
 
 def current_year_utc() -> int:

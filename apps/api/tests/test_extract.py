@@ -4,8 +4,8 @@ from typing import Any
 
 import pytest
 
-from app.ai.extractor import ActionExtractor, get_extractor
 from app.ai.schemas import ActionDraft
+from app.ai.service import ActionExtractor, get_extractor
 from app.core.enums import ActionStatus, Sector
 from app.main import app
 

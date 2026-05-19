@@ -8,7 +8,7 @@ from ..actions.models import Action
 from ..cities.models import City
 from ..core.db import get_session
 from ..core.deps import get_or_404
-from ..services.summary import build_summary
+from .service import build_summary
 
 router = APIRouter(prefix="/cities", tags=["summary"])
 
