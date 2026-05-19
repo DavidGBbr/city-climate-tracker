@@ -1,6 +1,6 @@
 "use client";
 
-import { ErrorMessage } from "@/components/forms";
+import { ErrorMessage } from "@/components/ui";
 import {
   useActions,
   useDefaultCity,

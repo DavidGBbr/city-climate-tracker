@@ -7,7 +7,7 @@ import {
   ErrorMessage,
   Field,
   SuccessMessage,
-} from "@/components/forms";
+} from "@/components/ui";
 import { ApiError, api } from "@/lib/api";
 import { revalidateCity, useDefaultCity } from "@/lib/hooks";
 import { City, CityUpdateSchema } from "@/lib/schemas";

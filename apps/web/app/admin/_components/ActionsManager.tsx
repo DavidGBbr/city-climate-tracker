@@ -8,7 +8,7 @@ import {
   Field,
   Select,
   SuccessMessage,
-} from "@/components/forms";
+} from "@/components/ui";
 import { ApiError, api } from "@/lib/api";
 import { revalidateCity, useActions, useDefaultCity } from "@/lib/hooks";
 import {
