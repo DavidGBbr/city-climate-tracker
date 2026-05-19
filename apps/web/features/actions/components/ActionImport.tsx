@@ -51,7 +51,7 @@ export function ActionImport({ onUseDraft }: ActionImportProps) {
       const parsed = ActionDraftSchema.safeParse(raw);
       if (!parsed.success) {
         setError(
-          "The LLM returned a draft that does not match the schema. Try again."
+          "The LLM returned a draft that does not match the schema. Try again.",
         );
         return;
       }

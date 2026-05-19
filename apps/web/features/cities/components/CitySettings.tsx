@@ -9,8 +9,10 @@ import {
   SuccessMessage,
 } from "@/components/ui";
 import { ApiError, api } from "@/lib/api";
-import { revalidateCity, useDefaultCity } from "@/lib/hooks";
+import { revalidateCity } from "@/lib/cache";
 import { City, CityUpdateSchema } from "@/lib/schemas";
+
+import { useDefaultCity } from "../hooks";
 
 export function CitySettings() {
   const { city, isLoading, error } = useDefaultCity();

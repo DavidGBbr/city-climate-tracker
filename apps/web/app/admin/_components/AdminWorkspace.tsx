@@ -2,11 +2,10 @@
 
 import { useState } from "react";
 
+import { ActionImport } from "@/features/actions/components/ActionImport";
+import { ActionsManager } from "@/features/actions/components/ActionsManager";
+import { CitySettings } from "@/features/cities/components/CitySettings";
 import { ActionDraft } from "@/lib/schemas";
-
-import { ActionImport } from "./ActionImport";
-import { ActionsManager } from "./ActionsManager";
-import { CitySettings } from "./CitySettings";
 
 export function AdminWorkspace() {
   const [draft, setDraft] = useState<ActionDraft | null>(null);

@@ -28,7 +28,7 @@ type Row = {
 
 /**
  * Linear pacing target between the journey start (first action year) and the
- * city's target year. Mirrors the on-track formula in apps/api/app/services/summary.py
+ * city's target year. Mirrors the on-track formula in apps/api/app/summary/service.py
  * so the chart and the badge agree.
  */
 function buildSeries(summary: Summary, actions: Action[]): Row[] {
@@ -52,7 +52,11 @@ function buildSeries(summary: Summary, actions: Action[]): Row[] {
         : Math.min(1, Math.max(0, (year - journeyStart) / horizon));
     const target = Math.max(0, summary.baseline_emissions * (1 - targetPct));
 
-    rows.push({ year, projected: Math.round(projected), target: Math.round(target) });
+    rows.push({
+      year,
+      projected: Math.round(projected),
+      target: Math.round(target),
+    });
   }
   return rows;
 }
@@ -92,9 +96,16 @@ export function ProjectionChart({ summary, actions }: Props) {
         </span>
       </header>
 
-      <div className="h-72 w-full" role="img" aria-label="Line chart comparing projected annual emissions against the linear pacing target from the first action year through the net-zero target year">
+      <div
+        className="h-72 w-full"
+        role="img"
+        aria-label="Line chart comparing projected annual emissions against the linear pacing target from the first action year through the net-zero target year"
+      >
         <ResponsiveContainer width="100%" height="100%">
-          <ComposedChart data={data} margin={{ top: 8, right: 16, bottom: 8, left: 8 }}>
+          <ComposedChart
+            data={data}
+            margin={{ top: 8, right: 16, bottom: 8, left: 8 }}
+          >
             <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
             <XAxis
               dataKey="year"
@@ -140,7 +151,12 @@ export function ProjectionChart({ summary, actions }: Props) {
               x={summary.current_year}
               stroke="#0f172a"
               strokeDasharray="2 2"
-              label={{ value: "Today", position: "top", fontSize: 11, fill: "#0f172a" }}
+              label={{
+                value: "Today",
+                position: "top",
+                fontSize: 11,
+                fill: "#0f172a",
+              }}
             />
           </ComposedChart>
         </ResponsiveContainer>

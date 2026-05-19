@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useEffect, useRef, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 
 import {
   Button,
@@ -10,7 +10,7 @@ import {
   SuccessMessage,
 } from "@/components/ui";
 import { ApiError, api } from "@/lib/api";
-import { revalidateCity, useActions, useDefaultCity } from "@/lib/hooks";
+import { revalidateCity } from "@/lib/cache";
 import {
   Action,
   ActionBaseSchema,
@@ -69,183 +69,7 @@ function actionToFormState(action: Action): FormState {
   };
 }
 
-export type ActionsManagerProps = {
-  initialDraft?: ActionDraft | null;
-  onDraftConsumed?: () => void;
-};
-
-export function ActionsManager({
-  initialDraft = null,
-  onDraftConsumed,
-}: ActionsManagerProps = {}) {
-  const { city, isLoading: cityLoading, error: cityError } = useDefaultCity();
-  const { data: actions, isLoading, error } = useActions(city?.id);
-  const [editing, setEditing] = useState<Action | null>(null);
-  const [deleting, setDeleting] = useState<string | null>(null);
-  const [deleteError, setDeleteError] = useState<string | null>(null);
-  const formRef = useRef<HTMLDivElement>(null);
-
-  // Scroll the form into view when a draft arrives from AI import.
-  useEffect(() => {
-    if (initialDraft && formRef.current) {
-      formRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
-    }
-  }, [initialDraft]);
-
-  if (cityLoading) {
-    return (
-      <p role="status" aria-live="polite" className="text-sm text-slate-500">
-        Loading…
-      </p>
-    );
-  }
-  if (cityError || !city) {
-    return <ErrorMessage>Could not load city configuration.</ErrorMessage>;
-  }
-
-  async function handleDelete(action: Action) {
-    if (!city) return;
-    const confirmed = window.confirm(`Delete action "${action.title}"?`);
-    if (!confirmed) return;
-
-    setDeleteError(null);
-    setDeleting(action.id);
-    try {
-      await api.delete(`/actions/${action.id}`);
-      await revalidateCity(city.id);
-      if (editing?.id === action.id) setEditing(null);
-    } catch (err) {
-      setDeleteError(
-        err instanceof ApiError ? err.message : "Failed to delete action."
-      );
-    } finally {
-      setDeleting(null);
-    }
-  }
-
-  return (
-    <section aria-labelledby="actions-heading" className="space-y-4">
-      <header className="space-y-1">
-        <h2 id="actions-heading" className="text-lg font-semibold">
-          Climate actions
-        </h2>
-        <p className="text-sm text-slate-500">
-          Add, edit, or remove the actions counted toward the reduction target.
-        </p>
-      </header>
-
-      <div ref={formRef}>
-        <ActionForm
-          cityId={city.id}
-          action={editing}
-          initialDraft={editing ? null : initialDraft}
-          onSaved={() => {
-            setEditing(null);
-            onDraftConsumed?.();
-          }}
-          onCancel={
-            editing || initialDraft
-              ? () => {
-                  setEditing(null);
-                  onDraftConsumed?.();
-                }
-              : undefined
-          }
-        />
-      </div>
-
-      {deleteError && <ErrorMessage>{deleteError}</ErrorMessage>}
-
-      <div className="overflow-x-auto rounded-lg border border-slate-200 bg-white">
-        <table className="w-full text-sm">
-          <caption className="sr-only">
-            Climate actions registered for the city
-          </caption>
-          <thead className="bg-slate-50 text-left text-xs uppercase tracking-wide text-slate-500">
-            <tr>
-              <th scope="col" className="px-4 py-2">Title</th>
-              <th scope="col" className="px-4 py-2">Sector</th>
-              <th scope="col" className="px-4 py-2 text-right">
-                Reduction (t/yr)
-              </th>
-              <th scope="col" className="px-4 py-2">Status</th>
-              <th scope="col" className="px-4 py-2 text-right">Start year</th>
-              <th scope="col" className="px-4 py-2 text-right">
-                <span className="sr-only">Row actions</span>
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {isLoading && (
-              <tr>
-                <td colSpan={6} className="px-4 py-6 text-center text-slate-500">
-                  Loading actions…
-                </td>
-              </tr>
-            )}
-            {error && (
-              <tr>
-                <td colSpan={6} className="px-4 py-6 text-center text-red-600">
-                  Failed to load actions.
-                </td>
-              </tr>
-            )}
-            {!isLoading && !error && actions?.length === 0 && (
-              <tr>
-                <td colSpan={6} className="px-4 py-6 text-center text-slate-500">
-                  No actions yet. Add the first one above.
-                </td>
-              </tr>
-            )}
-            {actions?.map((action) => (
-              <tr
-                key={action.id}
-                className={
-                  editing?.id === action.id
-                    ? "border-t border-slate-200 bg-emerald-50"
-                    : "border-t border-slate-200"
-                }
-              >
-                <td className="px-4 py-2 font-medium">{action.title}</td>
-                <td className="px-4 py-2">{SECTOR_LABELS[action.sector]}</td>
-                <td className="px-4 py-2 text-right tabular-nums">
-                  {action.annual_reduction.toLocaleString()}
-                </td>
-                <td className="px-4 py-2">{STATUS_LABELS[action.status]}</td>
-                <td className="px-4 py-2 text-right tabular-nums">
-                  {action.start_year}
-                </td>
-                <td className="px-4 py-2 text-right">
-                  <div className="inline-flex gap-2">
-                    <Button
-                      variant="secondary"
-                      size="sm"
-                      onClick={() => setEditing(action)}
-                      ariaLabel={`Edit ${action.title}`}
-                    >
-                      Edit
-                    </Button>
-                    <Button
-                      variant="danger"
-                      size="sm"
-                      disabled={deleting === action.id}
-                      onClick={() => handleDelete(action)}
-                      ariaLabel={`Delete ${action.title}`}
-                    >
-                      {deleting === action.id ? "Deleting…" : "Delete"}
-                    </Button>
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </section>
-  );
-}
-
-type ActionFormProps = {
+export type ActionFormProps = {
   cityId: string;
   action: Action | null;
   initialDraft?: ActionDraft | null;
@@ -253,7 +77,7 @@ type ActionFormProps = {
   onCancel?: () => void;
 };
 
-function ActionForm({
+export function ActionForm({
   cityId,
   action,
   initialDraft = null,
@@ -320,7 +144,7 @@ function ActionForm({
       onSaved();
     } catch (err) {
       setFormError(
-        err instanceof ApiError ? err.message : "Failed to save action."
+        err instanceof ApiError ? err.message : "Failed to save action.",
       );
     } finally {
       setSaving(false);
