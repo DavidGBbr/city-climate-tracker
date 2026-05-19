@@ -85,11 +85,21 @@ const config: Config = {
           "0%, 100%": { transform: "translateY(0) rotate(-8deg)" },
           "50%": { transform: "translateY(-8px) rotate(-4deg)" },
         },
+        "fade-in": {
+          "0%": { opacity: "0" },
+          "100%": { opacity: "1" },
+        },
+        "modal-pop": {
+          "0%": { opacity: "0", transform: "translateY(8px) scale(0.98)" },
+          "100%": { opacity: "1", transform: "translateY(0) scale(1)" },
+        },
       },
       animation: {
         "rise-in": "rise-in 700ms cubic-bezier(0.16, 1, 0.3, 1) both",
         "soft-pulse": "soft-pulse 2.4s ease-in-out infinite",
         float: "float 8s ease-in-out infinite",
+        "fade-in": "fade-in 200ms ease-out both",
+        "modal-pop": "modal-pop 220ms cubic-bezier(0.16, 1, 0.3, 1) both",
       },
     },
   },

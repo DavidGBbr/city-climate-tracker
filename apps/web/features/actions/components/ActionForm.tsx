@@ -74,7 +74,7 @@ export type ActionFormProps = {
   action: Action | null;
   initialDraft?: ActionDraft | null;
   onSaved: () => void;
-  onCancel?: () => void;
+  onCancel: () => void;
 };
 
 export function ActionForm({
@@ -153,103 +153,96 @@ export function ActionForm({
 
   const isEditing = action !== null;
   const fromDraft = !isEditing && initialDraft !== null;
-  const headingText = isEditing
-    ? `Edit: ${action!.title}`
-    : fromDraft
-      ? "Review AI draft"
-      : "Add a new action";
-
-  const eyebrowText = isEditing
-    ? "Editing"
-    : fromDraft
-      ? "From AI draft"
-      : "New entry";
 
   return (
-    <form
-      onSubmit={onSubmit}
-      noValidate
-      aria-labelledby="action-form-heading"
-      className="rounded-xl border border-ink-line/50 bg-bg/40"
-    >
-      <div className="flex items-baseline justify-between border-b border-ink-line/40 px-6 pt-5 pb-4">
-        <div>
-          <p className="text-[10px] font-semibold uppercase tracking-eyebrow text-emerald-700">
-            {eyebrowText}
-          </p>
-          <h3
-            id="action-form-heading"
-            className="mt-0.5 text-base font-bold tracking-tight text-ink"
+    <form onSubmit={onSubmit} noValidate className="space-y-5">
+      {fromDraft && (
+        <div className="flex items-start gap-2.5 rounded-lg border border-emerald-200 bg-emerald-50/60 px-3 py-2 text-xs text-emerald-800">
+          <svg
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className="mt-0.5 shrink-0"
+            aria-hidden
           >
-            {headingText}
-          </h3>
+            <path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z" />
+          </svg>
+          <span>
+            Prefilled from the AI draft. Edit any field before saving.
+          </span>
         </div>
-      </div>
+      )}
 
-      <div className="px-6 py-5 space-y-5">
-        <Field
-          id="action-title"
-          label="Title"
-          value={form.title}
-          onChange={(v) => update("title", v)}
-          error={fieldErrors.title}
-          placeholder="Expand bike lane network"
+      <Field
+        id="action-title"
+        label="Title"
+        value={form.title}
+        onChange={(v) => update("title", v)}
+        error={fieldErrors.title}
+        placeholder="Expand bike lane network"
+        required
+      />
+
+      <div className="grid gap-5 sm:grid-cols-2">
+        <Select
+          id="action-sector"
+          label="Sector"
+          value={form.sector}
+          onChange={(v) => update("sector", v as Sector)}
+          options={SECTOR_OPTIONS}
+          error={fieldErrors.sector}
           required
         />
 
-        <div className="grid gap-5 sm:grid-cols-2">
-          <Select
-            id="action-sector"
-            label="Sector"
-            value={form.sector}
-            onChange={(v) => update("sector", v as Sector)}
-            options={SECTOR_OPTIONS}
-            error={fieldErrors.sector}
-            required
-          />
+        <Select
+          id="action-status"
+          label="Status"
+          value={form.status}
+          onChange={(v) => update("status", v as Status)}
+          options={STATUS_OPTIONS}
+          error={fieldErrors.status}
+          required
+        />
 
-          <Select
-            id="action-status"
-            label="Status"
-            value={form.status}
-            onChange={(v) => update("status", v as Status)}
-            options={STATUS_OPTIONS}
-            error={fieldErrors.status}
-            required
-          />
+        <Field
+          id="action-reduction"
+          label="Annual reduction (t CO₂ / yr)"
+          type="number"
+          inputMode="decimal"
+          min={0}
+          step="any"
+          value={form.annual_reduction}
+          onChange={(v) => update("annual_reduction", v)}
+          error={fieldErrors.annual_reduction}
+          required
+        />
 
-          <Field
-            id="action-reduction"
-            label="Annual reduction (t CO₂ / yr)"
-            type="number"
-            inputMode="decimal"
-            min={0}
-            step="any"
-            value={form.annual_reduction}
-            onChange={(v) => update("annual_reduction", v)}
-            error={fieldErrors.annual_reduction}
-            required
-          />
-
-          <Field
-            id="action-start"
-            label="Start year"
-            type="number"
-            inputMode="numeric"
-            min={1900}
-            max={2100}
-            value={form.start_year}
-            onChange={(v) => update("start_year", v)}
-            error={fieldErrors.start_year}
-            required
-          />
-        </div>
-
-        {formError && <ErrorMessage>{formError}</ErrorMessage>}
-        {success && <SuccessMessage>{success}</SuccessMessage>}
+        <Field
+          id="action-start"
+          label="Start year"
+          type="number"
+          inputMode="numeric"
+          min={1900}
+          max={2100}
+          value={form.start_year}
+          onChange={(v) => update("start_year", v)}
+          error={fieldErrors.start_year}
+          required
+        />
       </div>
 
-      <div className="flex items-center gap-3 border-t border-ink-line/40 bg-bg-sunk/30 px-6 py-4 rounded-b-xl">
+      {formError && <ErrorMessage>{formError}</ErrorMessage>}
+      {success && <SuccessMessage>{success}</SuccessMessage>}
+
+      <div className="flex items-center justify-end gap-2.5 border-t border-ink-line/40 pt-5">
+        <Button type="button" variant="ghost" onClick={onCancel}>
+          Cancel
+        </Button>
         <Button type="submit" disabled={saving}>
           {saving
             ? "Saving…"
@@ -275,19 +268,6 @@ export function ActionForm({
             </svg>
           )}
         </Button>
-        {onCancel && (
-          <Button
-            type="button"
-            variant="ghost"
-            onClick={() => {
-              setFieldErrors({});
-              setFormError(null);
-              onCancel();
-            }}
-          >
-            Cancel
-          </Button>
-        )}
       </div>
     </form>
   );

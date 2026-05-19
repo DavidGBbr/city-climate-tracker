@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 
-import { ErrorMessage } from "@/components/ui";
+import { ConfirmDialog, ErrorMessage, Modal } from "@/components/ui";
 import { useDefaultCity } from "@/features/cities/hooks";
 import { ApiError, api } from "@/lib/api";
 import { revalidateCity } from "@/lib/cache";
@@ -17,20 +17,27 @@ export type ActionsManagerProps = {
   onDraftConsumed?: () => void;
 };
 
+type ModalState =
+  | { kind: "closed" }
+  | { kind: "create" }
+  | { kind: "create-from-draft"; draft: ActionDraft }
+  | { kind: "edit"; action: Action }
+  | { kind: "delete"; action: Action };
+
 export function ActionsManager({
   initialDraft = null,
   onDraftConsumed,
 }: ActionsManagerProps = {}) {
   const { city, isLoading: cityLoading, error: cityError } = useDefaultCity();
   const { data: actions, isLoading, error } = useActions(city?.id);
-  const [editing, setEditing] = useState<Action | null>(null);
-  const [deleting, setDeleting] = useState<string | null>(null);
+  const [modal, setModal] = useState<ModalState>({ kind: "closed" });
+  const [deleting, setDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
-  const formRef = useRef<HTMLDivElement>(null);
 
+  // When an AI draft arrives, automatically open the Create modal prefilled.
   useEffect(() => {
-    if (initialDraft && formRef.current) {
-      formRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+    if (initialDraft) {
+      setModal({ kind: "create-from-draft", draft: initialDraft });
     }
   }, [initialDraft]);
 
@@ -41,32 +48,64 @@ export function ActionsManager({
     return <ErrorMessage>Could not load city configuration.</ErrorMessage>;
   }
 
-  async function handleDelete(action: Action) {
-    if (!city) return;
-    const confirmed = window.confirm(`Delete action "${action.title}"?`);
-    if (!confirmed) return;
-
+  function closeModal() {
+    if (
+      modal.kind === "create-from-draft" ||
+      (initialDraft && modal.kind === "create")
+    ) {
+      onDraftConsumed?.();
+    }
+    setModal({ kind: "closed" });
     setDeleteError(null);
-    setDeleting(action.id);
+  }
+
+  async function handleConfirmDelete() {
+    if (!city || modal.kind !== "delete") return;
+    const action = modal.action;
+    setDeleteError(null);
+    setDeleting(true);
     try {
       await api.delete(`/actions/${action.id}`);
       await revalidateCity(city.id);
-      if (editing?.id === action.id) setEditing(null);
+      setModal({ kind: "closed" });
     } catch (err) {
       setDeleteError(
         err instanceof ApiError ? err.message : "Failed to delete action.",
       );
     } finally {
-      setDeleting(null);
+      setDeleting(false);
     }
   }
+
+  const formOpen =
+    modal.kind === "create" ||
+    modal.kind === "create-from-draft" ||
+    modal.kind === "edit";
+
+  const formAction = modal.kind === "edit" ? modal.action : null;
+  const formDraft =
+    modal.kind === "create-from-draft" ? modal.draft : null;
+
+  const formTitle =
+    modal.kind === "edit"
+      ? `Edit: ${modal.action.title}`
+      : modal.kind === "create-from-draft"
+        ? "Review AI draft"
+        : "Add a new action";
+
+  const formDescription =
+    modal.kind === "edit"
+      ? "Update the action's details. Changes apply immediately on save."
+      : modal.kind === "create-from-draft"
+        ? "The LLM extracted the fields below — review them before saving."
+        : "Each action contributes its annual reduction toward the baseline.";
 
   return (
     <section
       aria-labelledby="actions-heading"
       className="rounded-2xl border border-ink-line/50 bg-bg-elev shadow-soft"
     >
-      <header className="flex items-start gap-4 border-b border-ink-line/40 px-7 py-5">
+      <header className="flex flex-wrap items-start gap-4 border-b border-ink-line/40 px-7 py-5">
         <span
           aria-hidden
           className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-emerald-100 text-emerald-700"
@@ -86,7 +125,7 @@ export function ActionsManager({
             <path d="M3 17h18" />
           </svg>
         </span>
-        <div className="flex-1">
+        <div className="flex-1 min-w-0">
           <p className="text-[11px] font-semibold uppercase tracking-eyebrow text-emerald-700">
             Step 03
           </p>
@@ -101,46 +140,84 @@ export function ActionsManager({
             reduction target.
           </p>
         </div>
-        {actions && (
-          <span className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">
-            {actions.length} {actions.length === 1 ? "entry" : "entries"}
-          </span>
-        )}
+        <div className="flex items-center gap-3">
+          {actions && (
+            <span className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">
+              {actions.length} {actions.length === 1 ? "entry" : "entries"}
+            </span>
+          )}
+          <button
+            type="button"
+            onClick={() => setModal({ kind: "create" })}
+            className="inline-flex items-center gap-1.5 rounded-full bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-emerald-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
+          >
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.4"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden
+            >
+              <path d="M12 5v14" />
+              <path d="M5 12h14" />
+            </svg>
+            Add action
+          </button>
+        </div>
       </header>
 
-      <div className="px-7 py-6 space-y-6">
-        <div ref={formRef}>
-          <ActionForm
-            cityId={city.id}
-            action={editing}
-            initialDraft={editing ? null : initialDraft}
-            onSaved={() => {
-              setEditing(null);
-              onDraftConsumed?.();
-            }}
-            onCancel={
-              editing || initialDraft
-                ? () => {
-                    setEditing(null);
-                    onDraftConsumed?.();
-                  }
-                : undefined
-            }
-          />
-        </div>
-
-        {deleteError && <ErrorMessage>{deleteError}</ErrorMessage>}
-
+      <div className="px-7 py-6">
         <ActionsTable
           actions={actions}
           isLoading={isLoading}
           hasError={Boolean(error)}
-          editingId={editing?.id ?? null}
-          deletingId={deleting}
-          onEdit={setEditing}
-          onDelete={handleDelete}
+          editingId={null}
+          deletingId={null}
+          onEdit={(action) => setModal({ kind: "edit", action })}
+          onDelete={(action) => setModal({ kind: "delete", action })}
         />
       </div>
+
+      <Modal
+        open={formOpen}
+        onClose={closeModal}
+        title={formTitle}
+        description={formDescription}
+        size="lg"
+      >
+        <ActionForm
+          cityId={city.id}
+          action={formAction}
+          initialDraft={formDraft}
+          onSaved={closeModal}
+          onCancel={closeModal}
+        />
+      </Modal>
+
+      <ConfirmDialog
+        open={modal.kind === "delete"}
+        onClose={closeModal}
+        onConfirm={handleConfirmDelete}
+        title="Delete this action?"
+        description={
+          modal.kind === "delete"
+            ? `"${modal.action.title}" will be removed from the ledger and its reduction will no longer count toward the target. This cannot be undone.`
+            : ""
+        }
+        confirmLabel="Delete action"
+        destructive
+        busy={deleting}
+      />
+
+      {deleteError && (
+        <div className="px-7 pb-6">
+          <ErrorMessage>{deleteError}</ErrorMessage>
+        </div>
+      )}
     </section>
   );
 }
