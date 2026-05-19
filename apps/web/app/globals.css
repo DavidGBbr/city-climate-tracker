@@ -14,29 +14,26 @@ body {
 
 body {
   font-family: var(--font-sans);
-  font-feature-settings: "ss01", "cv11";
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  /* Faint grain — adds editorial texture without distracting */
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.06 0 0 0 0 0.12 0 0 0 0 0.11 0 0 0 0.04 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+  text-rendering: optimizeLegibility;
 }
 
-/* ---------- Editorial typography defaults ---------- */
+/* ---------- Typography defaults ---------- */
 
 h1,
 h2,
 h3,
 h4 {
-  font-family: var(--font-display);
-  letter-spacing: -0.02em;
+  letter-spacing: -0.01em;
+  font-feature-settings: "ss01";
 }
 
 .eyebrow {
-  font-family: var(--font-sans);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
-  letter-spacing: 0.18em;
-  font-size: 0.6875rem;
-  font-weight: 500;
   color: theme("colors.ink.mute");
 }
 
@@ -45,65 +42,45 @@ h4 {
   font-feature-settings: "tnum", "zero";
 }
 
-/* ---------- Decorative rule with leaf glyph ---------- */
+/* ---------- Decorative organic elements ---------- */
 
-.rule-leaf {
-  position: relative;
-  height: 1px;
-  background: theme("colors.ink.line");
+/* Soft topographic backdrop — evokes contour maps without being literal */
+.topo-bg {
+  background-image: theme("backgroundImage.topo");
+  background-repeat: repeat;
+  background-size: 600px 600px;
 }
 
-.rule-leaf::before {
-  content: "✦";
+/* Blurred organic blob in emerald tones — anchors the hero with depth */
+.blob {
   position: absolute;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
-  background: theme("colors.bg.DEFAULT");
-  padding: 0 0.75rem;
-  color: theme("colors.forest.500");
-  font-size: 0.75rem;
+  border-radius: 50%;
+  filter: blur(60px);
+  opacity: 0.6;
+  pointer-events: none;
+  z-index: 0;
 }
 
-/* ---------- Link styles ---------- */
-
-.link-arrow {
-  position: relative;
-  color: theme("colors.forest.600");
-  font-weight: 500;
-}
-
-.link-arrow::after {
-  content: " →";
-  transition: transform 200ms ease;
-  display: inline-block;
-}
-
-.link-arrow:hover::after {
-  transform: translateX(3px);
-}
-
-/* ---------- Subtle reveal for top-of-page sections ---------- */
+/* ---------- Reveal animation for first paint ---------- */
 
 .reveal > * {
   animation: rise-in 700ms cubic-bezier(0.16, 1, 0.3, 1) both;
 }
-
 .reveal > *:nth-child(1) {
   animation-delay: 0ms;
 }
 .reveal > *:nth-child(2) {
-  animation-delay: 80ms;
+  animation-delay: 90ms;
 }
 .reveal > *:nth-child(3) {
-  animation-delay: 160ms;
+  animation-delay: 180ms;
 }
 .reveal > *:nth-child(4) {
-  animation-delay: 240ms;
+  animation-delay: 270ms;
 }
 .reveal > *:nth-child(5) {
-  animation-delay: 320ms;
+  animation-delay: 360ms;
 }
 .reveal > *:nth-child(6) {
-  animation-delay: 400ms;
+  animation-delay: 450ms;
 }

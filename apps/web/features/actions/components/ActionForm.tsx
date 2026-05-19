@@ -170,21 +170,23 @@ export function ActionForm({
       onSubmit={onSubmit}
       noValidate
       aria-labelledby="action-form-heading"
-      className="bg-bg-elev border border-ink-line/70 rounded-sharp shadow-card"
+      className="rounded-xl border border-ink-line/50 bg-bg/40"
     >
-      <div className="px-7 pt-6 pb-5 border-b border-ink-line/70 flex items-baseline justify-between">
+      <div className="flex items-baseline justify-between border-b border-ink-line/40 px-6 pt-5 pb-4">
         <div>
-          <p className="eyebrow text-forest-600">{eyebrowText}</p>
+          <p className="text-[10px] font-semibold uppercase tracking-eyebrow text-emerald-700">
+            {eyebrowText}
+          </p>
           <h3
             id="action-form-heading"
-            className="font-display text-xl font-semibold text-ink tracking-tight mt-1"
+            className="mt-0.5 text-base font-bold tracking-tight text-ink"
           >
             {headingText}
           </h3>
         </div>
       </div>
 
-      <div className="px-7 py-6 space-y-6">
+      <div className="px-6 py-5 space-y-5">
         <Field
           id="action-title"
           label="Title"
@@ -195,7 +197,7 @@ export function ActionForm({
           required
         />
 
-        <div className="grid gap-6 sm:grid-cols-2">
+        <div className="grid gap-5 sm:grid-cols-2">
           <Select
             id="action-sector"
             label="Sector"
@@ -247,15 +249,31 @@ export function ActionForm({
         {success && <SuccessMessage>{success}</SuccessMessage>}
       </div>
 
-      <div className="px-7 py-5 border-t border-ink-line/70 bg-bg-sunk/40 flex items-center gap-3">
+      <div className="flex items-center gap-3 border-t border-ink-line/40 bg-bg-sunk/30 px-6 py-4 rounded-b-xl">
         <Button type="submit" disabled={saving}>
           {saving
             ? "Saving…"
             : isEditing
-              ? "Save changes →"
+              ? "Save changes"
               : fromDraft
-                ? "Save draft as action →"
-                : "Add action →"}
+                ? "Save draft"
+                : "Add action"}
+          {!saving && (
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.4"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden
+            >
+              <path d="M5 12h14" />
+              <path d="m12 5 7 7-7 7" />
+            </svg>
+          )}
         </Button>
         {onCancel && (
           <Button

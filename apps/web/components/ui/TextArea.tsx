@@ -27,14 +27,14 @@ export function TextArea({
   const hintId = hint ? `${id}-hint` : undefined;
   const describedBy = [errorId, hintId].filter(Boolean).join(" ") || undefined;
   return (
-    <div className="space-y-2">
+    <div className="space-y-1.5">
       <label
         htmlFor={id}
-        className="eyebrow text-ink-soft flex items-center gap-1"
+        className="flex items-center gap-1 text-xs font-semibold text-ink-soft"
       >
         {label}
         {required && (
-          <span aria-hidden="true" className="text-forest-600">
+          <span aria-hidden="true" className="text-emerald-600">
             *
           </span>
         )}
@@ -49,8 +49,8 @@ export function TextArea({
         onChange={(e) => onChange(e.target.value)}
         aria-invalid={Boolean(error)}
         aria-describedby={describedBy}
-        className={`w-full bg-bg-elev border border-ink-line/70 px-4 py-3 text-sm leading-relaxed text-ink placeholder:text-ink-mute focus:border-ink focus:outline-none rounded-sharp transition-colors ${
-          error ? "border-ember-500" : ""
+        className={`w-full rounded-lg border bg-white px-4 py-3 text-sm leading-relaxed text-ink placeholder:text-ink-mute focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-100 transition-all ${
+          error ? "border-ember-500" : "border-ink-line"
         }`}
       />
       {hint && (
@@ -59,7 +59,7 @@ export function TextArea({
         </p>
       )}
       {error && (
-        <p id={errorId} className="text-[11px] text-ember-600">
+        <p id={errorId} className="text-[11px] font-medium text-ember-600">
           {error}
         </p>
       )}

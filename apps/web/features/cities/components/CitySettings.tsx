@@ -18,7 +18,7 @@ export function CitySettings() {
   const { city, isLoading, error } = useDefaultCity();
 
   if (isLoading) {
-    return <p className="eyebrow text-ink-mute">Loading city…</p>;
+    return <p className="text-sm text-ink-mute">Loading city…</p>;
   }
 
   if (error || !city) {
@@ -83,23 +83,50 @@ function CitySettingsForm({ city }: { city: City }) {
   return (
     <section
       aria-labelledby="city-settings-heading"
-      className="grid gap-10 md:grid-cols-[14rem_1fr] border-t border-ink-line/70 pt-10"
+      className="rounded-2xl border border-ink-line/50 bg-bg-elev shadow-soft"
     >
-      <header className="space-y-2">
-        <p className="eyebrow text-forest-600">§ 01</p>
-        <h2
-          id="city-settings-heading"
-          className="font-display text-2xl font-semibold text-ink tracking-tight"
+      <header className="flex items-start gap-4 border-b border-ink-line/40 px-7 py-5">
+        <span
+          aria-hidden
+          className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-emerald-100 text-emerald-700"
         >
-          City profile
-        </h2>
-        <p className="text-sm text-ink-soft leading-relaxed">
-          Baseline emissions and the target year drive the on-track
-          calculation. <code className="font-mono text-[11px] text-ink-mute">id={city.id.slice(0, 8)}…</code>
-        </p>
+          <svg
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="M3 21h18" />
+            <path d="M5 21V7l8-4v18" />
+            <path d="M19 21V11l-6-4" />
+            <path d="M9 9v.01" />
+            <path d="M9 12v.01" />
+            <path d="M9 15v.01" />
+            <path d="M9 18v.01" />
+          </svg>
+        </span>
+        <div className="flex-1">
+          <p className="text-[11px] font-semibold uppercase tracking-eyebrow text-emerald-700">
+            Step 01
+          </p>
+          <h2
+            id="city-settings-heading"
+            className="mt-0.5 text-lg font-bold tracking-tight text-ink"
+          >
+            City profile
+          </h2>
+          <p className="mt-1 text-sm text-ink-soft">
+            Baseline emissions and the target year drive the on-track
+            calculation.
+          </p>
+        </div>
       </header>
 
-      <form onSubmit={onSubmit} noValidate className="max-w-xl space-y-6">
+      <form onSubmit={onSubmit} noValidate className="px-7 py-6 space-y-5">
         <Field
           id="city-name"
           label="City name"
@@ -110,7 +137,7 @@ function CitySettingsForm({ city }: { city: City }) {
           required
         />
 
-        <div className="grid gap-6 sm:grid-cols-2">
+        <div className="grid gap-5 sm:grid-cols-2">
           <Field
             id="city-baseline"
             label="Baseline emissions (t CO₂ / yr)"
@@ -141,12 +168,35 @@ function CitySettingsForm({ city }: { city: City }) {
         {formError && <ErrorMessage>{formError}</ErrorMessage>}
         {statusMessage && <SuccessMessage>{statusMessage}</SuccessMessage>}
 
-        <div className="flex items-center gap-4 pt-2">
+        <div className="flex items-center gap-3 pt-1">
           <Button type="submit" disabled={saving}>
-            {saving ? "Saving…" : "Save changes →"}
+            {saving ? "Saving…" : "Save changes"}
+            {!saving && <Arrow />}
           </Button>
+          <span className="text-[11px] text-ink-mute">
+            <code className="font-mono">id={city.id.slice(0, 8)}…</code>
+          </span>
         </div>
       </form>
     </section>
+  );
+}
+
+function Arrow() {
+  return (
+    <svg
+      width="14"
+      height="14"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.4"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden
+    >
+      <path d="M5 12h14" />
+      <path d="m12 5 7 7-7 7" />
+    </svg>
   );
 }

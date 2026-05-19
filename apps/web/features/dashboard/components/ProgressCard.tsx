@@ -14,29 +14,26 @@ export function ProgressCard({
   return (
     <section
       aria-labelledby="progress-heading"
-      className="lg:col-span-2 bg-bg-elev border border-ink-line/70 p-8 rounded-sharp shadow-card"
+      className="lg:col-span-2 rounded-2xl border border-ink-line/50 bg-bg-elev p-7 shadow-soft"
     >
-      <div className="flex items-baseline justify-between gap-4">
+      <div className="flex items-center justify-between gap-4">
         <h2
           id="progress-heading"
-          className="eyebrow"
+          className="text-sm font-semibold text-ink-soft"
         >
           Reductions secured vs. baseline
         </h2>
-        <span className="eyebrow text-forest-600">
+        <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-1 text-[11px] font-semibold text-emerald-700">
           {progressPercent}% covered
         </span>
       </div>
 
       <p className="mt-5 flex items-baseline gap-3">
-        <span className="stat font-display text-5xl font-semibold text-ink leading-none tracking-tight">
+        <span className="stat text-5xl font-extrabold leading-none tracking-tight text-ink">
           {summary.total_reduction.toLocaleString()}
         </span>
         <span className="text-sm text-ink-mute">
-          /{" "}
-          <span className="stat">
-            {summary.baseline_emissions.toLocaleString()}
-          </span>{" "}
+          / <span className="stat">{summary.baseline_emissions.toLocaleString()}</span>{" "}
           t CO₂/yr
         </span>
       </p>
@@ -49,12 +46,14 @@ export function ProgressCard({
           aria-valuemin={0}
           aria-valuemax={100}
           aria-valuetext={`${progressPercent}% of baseline covered`}
-          className="relative h-2 overflow-visible bg-bg-sunk"
+          className="relative h-2.5 overflow-visible rounded-full bg-bg-sunk"
         >
           <span
             aria-hidden="true"
-            className={`absolute inset-y-0 left-0 transition-[width] duration-700 ${
-              summary.on_track ? "bg-forest-500" : "bg-ember-500"
+            className={`absolute inset-y-0 left-0 rounded-full transition-[width] duration-700 ${
+              summary.on_track
+                ? "bg-gradient-to-r from-emerald-400 to-emerald-600"
+                : "bg-gradient-to-r from-ember-400 to-ember-600"
             }`}
             style={{ width: `${progressPercent}%` }}
           />
@@ -62,22 +61,20 @@ export function ProgressCard({
             <span
               aria-hidden="true"
               title={`Expected pacing: ${expectedPercent}%`}
-              className="absolute -top-1.5 -bottom-1.5 w-px bg-ink"
+              className="absolute -top-1.5 -bottom-1.5 w-0.5 rounded-full bg-ink"
               style={{ left: `${expectedPercent}%` }}
             />
           )}
         </div>
-        <div className="flex justify-between text-[11px] text-ink-mute font-mono">
-          <span>0</span>
-          <span aria-hidden>
-            ▲ pacing target {expectedPercent}%
-          </span>
-          <span>100</span>
+        <div className="flex justify-between text-[11px] font-mono text-ink-mute">
+          <span>0%</span>
+          <span>pacing target {expectedPercent}%</span>
+          <span>100%</span>
         </div>
       </div>
 
-      <p className="mt-6 text-sm text-ink-soft leading-relaxed">
-        <span className="stat font-medium text-ink">
+      <p className="mt-6 text-sm leading-relaxed text-ink-soft">
+        <span className="stat font-semibold text-ink">
           {summary.remaining_to_target.toLocaleString()} t/yr
         </span>{" "}
         of further annual reductions still required to reach net zero by{" "}

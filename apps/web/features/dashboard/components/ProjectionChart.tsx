@@ -26,11 +26,6 @@ type Row = {
   target: number;
 };
 
-/**
- * Linear pacing target between the journey start (first action year) and the
- * city's target year. Mirrors the on-track formula in apps/api/app/summary/service.py
- * so the chart and the badge agree.
- */
 function buildSeries(summary: Summary, actions: Action[]): Row[] {
   if (actions.length === 0) return [];
 
@@ -68,12 +63,14 @@ export function ProjectionChart({ summary, actions }: Props) {
     return (
       <section
         aria-labelledby="projection-heading"
-        className="bg-bg-elev border border-ink-line/70 p-8 rounded-sharp shadow-card"
+        className="rounded-2xl border border-ink-line/50 bg-bg-elev p-7 shadow-soft"
       >
-        <p className="eyebrow">Projection</p>
+        <p className="text-[11px] font-semibold uppercase tracking-eyebrow text-emerald-700">
+          Projection
+        </p>
         <h2
           id="projection-heading"
-          className="font-display text-2xl font-semibold text-ink mt-1"
+          className="mt-1 text-xl font-bold tracking-tight text-ink"
         >
           No actions registered yet
         </h2>
@@ -89,26 +86,28 @@ export function ProjectionChart({ summary, actions }: Props) {
   return (
     <section
       aria-labelledby="projection-heading"
-      className="bg-bg-elev border border-ink-line/70 rounded-sharp shadow-card"
+      className="rounded-2xl border border-ink-line/50 bg-bg-elev shadow-soft"
     >
-      <header className="flex items-baseline justify-between px-8 pt-7 pb-2">
+      <header className="flex items-baseline justify-between border-b border-ink-line/40 px-7 py-5">
         <div>
-          <p className="eyebrow">Trajectory</p>
+          <p className="text-[11px] font-semibold uppercase tracking-eyebrow text-emerald-700">
+            Trajectory
+          </p>
           <h2
             id="projection-heading"
-            className="font-display text-2xl font-semibold text-ink tracking-tight mt-1"
+            className="mt-1 text-xl font-bold tracking-tight text-ink"
           >
             Projected emissions per year
           </h2>
         </div>
-        <span className="eyebrow text-ink-mute">
+        <span className="text-xs text-ink-mute">
           tons CO₂/yr · baseline{" "}
           <span className="stat text-ink">{yMax.toLocaleString()}</span>
         </span>
       </header>
 
       <div
-        className="h-72 w-full px-4 pb-6"
+        className="h-72 w-full px-4 py-4"
         role="img"
         aria-label="Line chart comparing projected annual emissions against the linear pacing target from the first action year through the net-zero target year"
       >
@@ -119,24 +118,32 @@ export function ProjectionChart({ summary, actions }: Props) {
           >
             <defs>
               <linearGradient id="projGrad" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#2f8042" stopOpacity={0.22} />
-                <stop offset="100%" stopColor="#2f8042" stopOpacity={0.02} />
+                <stop offset="0%" stopColor="#10b981" stopOpacity={0.28} />
+                <stop offset="100%" stopColor="#10b981" stopOpacity={0.02} />
               </linearGradient>
             </defs>
             <CartesianGrid
               strokeDasharray="2 4"
-              stroke="#dcdfd6"
+              stroke="#dbe5d8"
               vertical={false}
             />
             <XAxis
               dataKey="year"
-              tick={{ fontSize: 11, fill: "#7a8a83", fontFamily: "var(--font-mono)" }}
+              tick={{
+                fontSize: 11,
+                fill: "#7a8a83",
+                fontFamily: "var(--font-mono)",
+              }}
               tickFormatter={(v) => String(v)}
-              axisLine={{ stroke: "#dcdfd6" }}
+              axisLine={{ stroke: "#dbe5d8" }}
               tickLine={false}
             />
             <YAxis
-              tick={{ fontSize: 11, fill: "#7a8a83", fontFamily: "var(--font-mono)" }}
+              tick={{
+                fontSize: 11,
+                fill: "#7a8a83",
+                fontFamily: "var(--font-mono)",
+              }}
               tickFormatter={(v) => `${Math.round(v / 1000)}k`}
               domain={[0, yMax]}
               axisLine={false}
@@ -148,60 +155,61 @@ export function ProjectionChart({ summary, actions }: Props) {
               }
               labelFormatter={(label) => `Year ${label}`}
               contentStyle={{
-                borderRadius: 2,
-                border: "1px solid #dcdfd6",
+                borderRadius: 12,
+                border: "1px solid #dbe5d8",
                 fontSize: 12,
-                fontFamily: "var(--font-mono)",
+                fontFamily: "var(--font-sans)",
                 background: "#ffffff",
+                boxShadow: "0 8px 24px -12px rgba(14, 31, 23, 0.12)",
               }}
-              cursor={{ stroke: "#0f1f1c", strokeDasharray: "2 2" }}
+              cursor={{ stroke: "#10b981", strokeDasharray: "3 3" }}
             />
             <Legend
               wrapperStyle={{
-                fontSize: 11,
+                fontSize: 12,
                 paddingTop: 8,
                 fontFamily: "var(--font-sans)",
-                color: "#7a8a83",
-                textTransform: "uppercase",
-                letterSpacing: "0.12em",
+                color: "#395048",
               }}
-              iconType="plainline"
+              iconType="circle"
             />
             <Area
               type="monotone"
               dataKey="projected"
               name="Projected with current actions"
-              stroke="#2f8042"
+              stroke="#10b981"
               fill="url(#projGrad)"
-              strokeWidth={2}
+              strokeWidth={2.5}
+              dot={{ r: 0 }}
+              activeDot={{ r: 5, fill: "#10b981", stroke: "#fff", strokeWidth: 2 }}
             />
             <Line
               type="monotone"
               dataKey="target"
               name="Linear pacing target"
-              stroke="#0f1f1c"
-              strokeDasharray="3 4"
-              strokeWidth={1.25}
+              stroke="#395048"
+              strokeDasharray="4 4"
+              strokeWidth={1.5}
               dot={false}
             />
             <ReferenceLine
               x={summary.current_year}
-              stroke="#0f1f1c"
+              stroke="#0e1f17"
               strokeWidth={1}
               label={{
-                value: "TODAY",
+                value: "Today",
                 position: "top",
-                fontSize: 10,
-                fill: "#0f1f1c",
+                fontSize: 11,
+                fill: "#0e1f17",
                 fontFamily: "var(--font-sans)",
-                letterSpacing: "0.18em",
+                fontWeight: 600,
               }}
             />
           </ComposedChart>
         </ResponsiveContainer>
       </div>
 
-      <p className="px-8 pb-6 text-xs text-ink-mute leading-relaxed border-t border-ink-line/60 pt-4">
+      <p className="border-t border-ink-line/30 px-7 py-4 text-xs leading-relaxed text-ink-mute">
         Projection assumes every registered action delivers its full annual
         reduction from its start year onward. The dashed line traces the linear
         path to net zero between the first action and the target year.

@@ -83,24 +83,52 @@ export function ActionImport({ onUseDraft }: ActionImportProps) {
   return (
     <section
       aria-labelledby="ai-import-heading"
-      className="grid gap-10 md:grid-cols-[14rem_1fr] border-t border-ink-line/70 pt-10"
+      className="rounded-2xl border border-ink-line/50 bg-bg-elev shadow-soft"
     >
-      <header className="space-y-2">
-        <p className="eyebrow text-forest-600">§ 02 · AI</p>
-        <h2
-          id="ai-import-heading"
-          className="font-display text-2xl font-semibold text-ink tracking-tight"
+      <header className="flex items-start gap-4 border-b border-ink-line/40 px-7 py-5">
+        <span
+          aria-hidden
+          className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-emerald-100 text-emerald-700"
         >
-          Read from policy text
-        </h2>
-        <p className="text-sm text-ink-soft leading-relaxed">
-          Paste a paragraph; the LLM extracts a structured action draft you can
-          review before saving. Calls are idempotent per text.
-        </p>
+          <svg
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="M12 2v4" />
+            <path d="m16.2 7.8 2.9-2.9" />
+            <path d="M18 12h4" />
+            <path d="m16.2 16.2 2.9 2.9" />
+            <path d="M12 18v4" />
+            <path d="m4.9 19.1 2.9-2.9" />
+            <path d="M2 12h4" />
+            <path d="m4.9 4.9 2.9 2.9" />
+          </svg>
+        </span>
+        <div className="flex-1">
+          <p className="text-[11px] font-semibold uppercase tracking-eyebrow text-emerald-700">
+            Step 02 · AI assist
+          </p>
+          <h2
+            id="ai-import-heading"
+            className="mt-0.5 text-lg font-bold tracking-tight text-ink"
+          >
+            Read from policy text
+          </h2>
+          <p className="mt-1 text-sm text-ink-soft">
+            Paste a paragraph; the LLM extracts a structured action draft you
+            can review before saving. Calls are idempotent per text.
+          </p>
+        </div>
       </header>
 
-      <div className="space-y-5">
-        <form onSubmit={onSubmit} noValidate className="space-y-5">
+      <div className="px-7 py-6 space-y-5">
+        <form onSubmit={onSubmit} noValidate className="space-y-4">
           <TextArea
             id="ai-import-text"
             label="Policy or meeting note"
@@ -116,7 +144,8 @@ export function ActionImport({ onUseDraft }: ActionImportProps) {
 
           <div className="flex items-center gap-3">
             <Button type="submit" disabled={extracting}>
-              {extracting ? "Extracting…" : "Extract with AI →"}
+              {extracting ? "Extracting…" : "Extract with AI"}
+              {!extracting && <Sparkles />}
             </Button>
             {draft && !lifted && (
               <Button type="button" variant="ghost" onClick={handleDiscard}>
@@ -129,17 +158,17 @@ export function ActionImport({ onUseDraft }: ActionImportProps) {
         {draft && (
           <div
             aria-labelledby="ai-draft-heading"
-            className="border border-forest-300 bg-forest-50/60 p-6 rounded-sharp"
+            className="rounded-xl border border-emerald-200 bg-emerald-50/60 p-5"
           >
-            <div className="flex items-baseline justify-between mb-4">
+            <div className="mb-4 flex items-center justify-between">
               <h3
                 id="ai-draft-heading"
-                className="eyebrow text-forest-700"
+                className="text-sm font-bold text-emerald-900"
               >
                 Extracted draft — review before saving
               </h3>
-              <span className="font-mono text-[10px] text-forest-700/70">
-                fingerprint matches
+              <span className="rounded-full bg-emerald-100 px-2.5 py-0.5 font-mono text-[10px] text-emerald-700">
+                cached
               </span>
             </div>
             <dl className="grid gap-4 text-sm sm:grid-cols-2">
@@ -159,7 +188,8 @@ export function ActionImport({ onUseDraft }: ActionImportProps) {
             </dl>
             <div className="mt-5 flex items-center gap-3">
               <Button onClick={handleUseDraft} disabled={lifted}>
-                {lifted ? "Loaded into form" : "Use as new action →"}
+                {lifted ? "Loaded into form" : "Use as new action"}
+                {!lifted && <Arrow />}
               </Button>
               <Button variant="ghost" onClick={handleDiscard}>
                 Discard
@@ -191,12 +221,51 @@ function DraftRow({
 }) {
   return (
     <div className="flex flex-col gap-0.5">
-      <dt className="eyebrow text-forest-700/80">{label}</dt>
+      <dt className="text-[10px] font-semibold uppercase tracking-eyebrow text-emerald-700/80">
+        {label}
+      </dt>
       <dd
-        className={`text-ink ${mono ? "stat font-medium" : "font-display font-medium"}`}
+        className={`font-semibold text-ink ${mono ? "stat" : ""}`}
       >
         {value}
       </dd>
     </div>
+  );
+}
+
+function Sparkles() {
+  return (
+    <svg
+      width="14"
+      height="14"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden
+    >
+      <path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z" />
+    </svg>
+  );
+}
+
+function Arrow() {
+  return (
+    <svg
+      width="14"
+      height="14"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.4"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden
+    >
+      <path d="M5 12h14" />
+      <path d="m12 5 7 7-7 7" />
+    </svg>
   );
 }

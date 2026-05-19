@@ -40,11 +40,11 @@ export function Field({
     <div className="space-y-1.5">
       <label
         htmlFor={id}
-        className="eyebrow text-ink-soft flex items-center gap-1"
+        className="flex items-center gap-1 text-xs font-semibold text-ink-soft"
       >
         {label}
         {required && (
-          <span aria-hidden="true" className="text-forest-600">
+          <span aria-hidden="true" className="text-emerald-600">
             *
           </span>
         )}
@@ -64,9 +64,9 @@ export function Field({
         onChange={(e) => onChange(e.target.value)}
         aria-invalid={Boolean(error)}
         aria-describedby={describedBy}
-        className={`w-full bg-transparent border-b border-ink-line px-0 py-2 text-base font-display text-ink placeholder:text-ink-mute focus:border-ink focus:outline-none transition-colors ${
+        className={`w-full rounded-lg border bg-white px-4 py-2.5 text-sm text-ink placeholder:text-ink-mute focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-100 transition-all ${
           type === "number" ? "stat" : ""
-        } ${error ? "border-ember-500" : ""}`}
+        } ${error ? "border-ember-500" : "border-ink-line"}`}
       />
       {hint && (
         <p id={hintId} className="text-[11px] text-ink-mute">
@@ -74,7 +74,7 @@ export function Field({
         </p>
       )}
       {error && (
-        <p id={errorId} className="text-[11px] text-ember-600">
+        <p id={errorId} className="text-[11px] font-medium text-ember-600">
           {error}
         </p>
       )}

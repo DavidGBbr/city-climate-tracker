@@ -1,25 +1,14 @@
 import type { Metadata } from "next";
-import {
-  Bricolage_Grotesque,
-  DM_Sans,
-  JetBrains_Mono,
-} from "next/font/google";
+import { JetBrains_Mono, Manrope } from "next/font/google";
 import Link from "next/link";
 
 import "./globals.css";
 
-const display = Bricolage_Grotesque({
-  subsets: ["latin"],
-  variable: "--font-display",
-  display: "swap",
-  weight: ["400", "500", "600", "700", "800"],
-});
-
-const sans = DM_Sans({
+const sans = Manrope({
   subsets: ["latin"],
   variable: "--font-sans",
   display: "swap",
-  weight: ["400", "500", "600"],
+  weight: ["400", "500", "600", "700", "800"],
 });
 
 const mono = JetBrains_Mono({
@@ -41,39 +30,38 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html
-      lang="en"
-      className={`${display.variable} ${sans.variable} ${mono.variable}`}
-    >
+    <html lang="en" className={`${sans.variable} ${mono.variable}`}>
       <body className="min-h-screen flex flex-col">
         <a
           href="#main"
-          className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-50 focus:rounded focus:bg-ink focus:px-3 focus:py-2 focus:text-white"
+          className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-50 focus:rounded-lg focus:bg-ink focus:px-3 focus:py-2 focus:text-white"
         >
           Skip to content
         </a>
 
-        <header className="border-b border-ink-line/70 bg-bg/80 backdrop-blur-sm sticky top-0 z-40">
-          <div className="mx-auto flex max-w-6xl items-center justify-between gap-6 px-6 py-5">
+        <header className="sticky top-0 z-40 border-b border-ink-line/60 bg-bg/85 backdrop-blur-md">
+          <div className="mx-auto flex max-w-6xl items-center justify-between gap-6 px-6 py-4">
             <Link
               href="/"
               className="group flex items-center gap-2.5 focus:outline-none"
             >
-              <Globe />
-              <span className="font-display text-[1.05rem] font-semibold tracking-tight text-ink">
-                Climate&nbsp;Action&nbsp;Tracker
-              </span>
-              <span className="hidden sm:inline-block text-[10px] uppercase tracking-eyebrow text-ink-mute border-l border-ink-line pl-2.5 ml-1">
-                OEF&nbsp;·&nbsp;v0.1
-              </span>
+              <LeafMark />
+              <div className="flex flex-col leading-none">
+                <span className="text-[15px] font-bold tracking-tight text-ink">
+                  Climate&nbsp;Action&nbsp;Tracker
+                </span>
+                <span className="mt-1 text-[10px] font-medium uppercase tracking-eyebrow text-emerald-700">
+                  Open&nbsp;Earth · OEF
+                </span>
+              </div>
             </Link>
 
             <nav aria-label="Primary" className="text-sm">
-              <ul className="flex gap-7">
+              <ul className="flex items-center gap-1">
                 <li>
                   <Link
                     href="/"
-                    className="text-ink-soft hover:text-ink transition-colors"
+                    className="rounded-full px-4 py-2 font-medium text-ink-soft transition-colors hover:bg-emerald-50 hover:text-emerald-700"
                   >
                     Dashboard
                   </Link>
@@ -81,12 +69,12 @@ export default function RootLayout({
                 <li>
                   <Link
                     href="/admin"
-                    className="text-ink-soft hover:text-ink transition-colors inline-flex items-center gap-1.5"
+                    className="inline-flex items-center gap-2 rounded-full px-4 py-2 font-medium text-ink-soft transition-colors hover:bg-emerald-50 hover:text-emerald-700"
                   >
                     Admin
                     <span
                       aria-hidden="true"
-                      className="h-1.5 w-1.5 rounded-full bg-forest-500"
+                      className="inline-block h-1.5 w-1.5 rounded-full bg-emerald-500 animate-soft-pulse"
                     />
                   </Link>
                 </li>
@@ -99,15 +87,18 @@ export default function RootLayout({
           {children}
         </main>
 
-        <footer className="border-t border-ink-line/70 mt-16">
-          <div className="mx-auto max-w-6xl px-6 py-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs">
-            <p className="text-ink-mute">
-              <span className="text-ink-soft font-medium">
-                Climate Action Tracker
-              </span>{" "}
-              — Built for the OEF AI-Native Software Engineer exercise.
-            </p>
-            <p className="text-ink-mute uppercase tracking-eyebrow">
+        <footer className="mt-20 border-t border-ink-line/60 bg-bg-elev/40">
+          <div className="mx-auto flex max-w-6xl flex-col items-start justify-between gap-3 px-6 py-8 text-xs sm:flex-row sm:items-center">
+            <div className="flex items-center gap-2.5 text-ink-soft">
+              <LeafMark small />
+              <p>
+                <span className="font-semibold text-ink">
+                  Climate Action Tracker
+                </span>{" "}
+                · Built for the OEF AI-Native Software Engineer exercise.
+              </p>
+            </div>
+            <p className="font-medium uppercase tracking-eyebrow text-emerald-700">
               Earth&nbsp;comes&nbsp;first.
             </p>
           </div>
@@ -117,24 +108,33 @@ export default function RootLayout({
   );
 }
 
-function Globe() {
+/**
+ * Sprout / leaf mark — two stylised leaves growing from a stem.
+ * Evokes nature without literal photography.
+ */
+function LeafMark({ small = false }: { small?: boolean }) {
+  const size = small ? 16 : 22;
   return (
-    <svg
-      width="22"
-      height="22"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.5"
-      strokeLinecap="round"
-      strokeLinejoin="round"
+    <span
       aria-hidden="true"
-      className="text-forest-600"
+      className="inline-flex items-center justify-center rounded-full bg-emerald-100 p-1.5"
+      style={{ width: size + 12, height: size + 12 }}
     >
-      <circle cx="12" cy="12" r="9.5" />
-      <path d="M2.5 12h19" />
-      <path d="M12 2.5a14 14 0 0 1 0 19" />
-      <path d="M12 2.5a14 14 0 0 0 0 19" />
-    </svg>
+      <svg
+        width={size}
+        height={size}
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        className="text-emerald-700"
+      >
+        <path d="M12 21V11" />
+        <path d="M12 11C12 7 8 4 4 4c0 4 3 7 8 7Z" fill="currentColor" fillOpacity="0.18" />
+        <path d="M12 13C12 9 16 6 20 6c0 4-3 7-8 7Z" fill="currentColor" fillOpacity="0.18" />
+      </svg>
+    </span>
   );
 }

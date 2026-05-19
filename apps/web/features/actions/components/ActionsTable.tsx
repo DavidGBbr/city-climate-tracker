@@ -1,7 +1,12 @@
 "use client";
 
 import { Button } from "@/components/ui";
-import { Action, SECTOR_LABELS, STATUS_LABELS } from "@/lib/schemas";
+import {
+  Action,
+  SECTOR_LABELS,
+  STATUS_LABELS,
+  Status,
+} from "@/lib/schemas";
 
 export type ActionsTableProps = {
   actions: Action[] | undefined;
@@ -13,10 +18,10 @@ export type ActionsTableProps = {
   onDelete: (action: Action) => void;
 };
 
-const STATUS_STYLES: Record<string, string> = {
-  planned: "text-ink-mute",
-  "in progress": "text-forest-600",
-  completed: "text-ink",
+const STATUS_PILL: Record<Status, string> = {
+  planned: "bg-bg-sunk text-ink-soft",
+  "in progress": "bg-emerald-100 text-emerald-800",
+  completed: "bg-ink text-bg",
 };
 
 export function ActionsTable({
@@ -29,10 +34,12 @@ export function ActionsTable({
   onDelete,
 }: ActionsTableProps) {
   return (
-    <div className="bg-bg-elev border border-ink-line/70 rounded-sharp shadow-card overflow-hidden">
-      <div className="px-7 pt-6 pb-3 border-b border-ink-line/70">
-        <p className="eyebrow">Ledger</p>
-        <h3 className="font-display text-xl font-semibold text-ink tracking-tight mt-1">
+    <div className="rounded-xl border border-ink-line/50 bg-white overflow-hidden">
+      <div className="border-b border-ink-line/40 px-6 py-4">
+        <p className="text-[10px] font-semibold uppercase tracking-eyebrow text-emerald-700">
+          Ledger
+        </p>
+        <h3 className="mt-0.5 text-base font-bold tracking-tight text-ink">
           Actions on file
         </h3>
       </div>
@@ -43,38 +50,38 @@ export function ActionsTable({
             Climate actions registered for the city
           </caption>
           <thead>
-            <tr className="border-b border-ink-line/60">
+            <tr className="border-b border-ink-line/40 bg-bg-sunk/30">
               <th
                 scope="col"
-                className="eyebrow text-left px-7 py-3 text-ink-mute font-medium"
+                className="px-6 py-3 text-left text-[10px] font-semibold uppercase tracking-eyebrow text-ink-mute"
               >
                 Title
               </th>
               <th
                 scope="col"
-                className="eyebrow text-left px-4 py-3 text-ink-mute font-medium"
+                className="px-3 py-3 text-left text-[10px] font-semibold uppercase tracking-eyebrow text-ink-mute"
               >
                 Sector
               </th>
               <th
                 scope="col"
-                className="eyebrow text-right px-4 py-3 text-ink-mute font-medium"
+                className="px-3 py-3 text-right text-[10px] font-semibold uppercase tracking-eyebrow text-ink-mute"
               >
                 t/yr
               </th>
               <th
                 scope="col"
-                className="eyebrow text-left px-4 py-3 text-ink-mute font-medium"
+                className="px-3 py-3 text-left text-[10px] font-semibold uppercase tracking-eyebrow text-ink-mute"
               >
                 Status
               </th>
               <th
                 scope="col"
-                className="eyebrow text-right px-4 py-3 text-ink-mute font-medium"
+                className="px-3 py-3 text-right text-[10px] font-semibold uppercase tracking-eyebrow text-ink-mute"
               >
                 Start
               </th>
-              <th scope="col" className="px-7 py-3 text-right">
+              <th scope="col" className="px-6 py-3 text-right">
                 <span className="sr-only">Row actions</span>
               </th>
             </tr>
@@ -84,7 +91,7 @@ export function ActionsTable({
               <tr>
                 <td
                   colSpan={6}
-                  className="px-7 py-10 text-center eyebrow text-ink-mute"
+                  className="px-6 py-10 text-center text-sm text-ink-mute"
                 >
                   Loading actions…
                 </td>
@@ -94,7 +101,7 @@ export function ActionsTable({
               <tr>
                 <td
                   colSpan={6}
-                  className="px-7 py-10 text-center eyebrow text-ember-600"
+                  className="px-6 py-10 text-center text-sm text-ember-600"
                 >
                   Failed to load actions.
                 </td>
@@ -104,7 +111,7 @@ export function ActionsTable({
               <tr>
                 <td
                   colSpan={6}
-                  className="px-7 py-10 text-center eyebrow text-ink-mute"
+                  className="px-6 py-10 text-center text-sm text-ink-mute"
                 >
                   No actions yet. Add the first one above.
                 </td>
@@ -115,40 +122,30 @@ export function ActionsTable({
                 key={action.id}
                 className={
                   editingId === action.id
-                    ? "border-b border-ink-line/40 bg-forest-50/60"
-                    : "border-b border-ink-line/40 hover:bg-bg-sunk/40 transition-colors"
+                    ? "border-b border-ink-line/30 bg-emerald-50/60"
+                    : "border-b border-ink-line/30 transition-colors hover:bg-emerald-50/30"
                 }
               >
-                <td className="px-7 py-4 font-display font-medium text-ink">
+                <td className="px-6 py-3.5 font-semibold text-ink">
                   {action.title}
                 </td>
-                <td className="px-4 py-4 text-ink-soft">
+                <td className="px-3 py-3.5 text-ink-soft">
                   {SECTOR_LABELS[action.sector]}
                 </td>
-                <td className="px-4 py-4 text-right stat text-ink">
+                <td className="stat px-3 py-3.5 text-right font-medium text-ink">
                   {action.annual_reduction.toLocaleString()}
                 </td>
-                <td
-                  className={`px-4 py-4 eyebrow ${STATUS_STYLES[action.status]}`}
-                >
-                  <span className="inline-flex items-center gap-1.5">
-                    <span
-                      aria-hidden
-                      className={`h-1.5 w-1.5 rounded-full ${
-                        action.status === "completed"
-                          ? "bg-ink"
-                          : action.status === "in progress"
-                            ? "bg-forest-500"
-                            : "bg-ink-line"
-                      }`}
-                    />
+                <td className="px-3 py-3.5">
+                  <span
+                    className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[11px] font-semibold ${STATUS_PILL[action.status]}`}
+                  >
                     {STATUS_LABELS[action.status]}
                   </span>
                 </td>
-                <td className="px-4 py-4 text-right stat text-ink-soft">
+                <td className="stat px-3 py-3.5 text-right text-ink-soft">
                   {action.start_year}
                 </td>
-                <td className="px-7 py-4 text-right">
+                <td className="px-6 py-3.5 text-right">
                   <div className="inline-flex gap-1.5">
                     <Button
                       variant="secondary"

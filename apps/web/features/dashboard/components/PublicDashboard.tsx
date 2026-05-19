@@ -22,8 +22,8 @@ export function PublicDashboard() {
   if (cityLoading || isLoading) {
     return (
       <div className="flex items-center gap-3 text-sm text-ink-mute">
-        <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-forest-500" />
-        <span className="eyebrow">Loading dashboard</span>
+        <span className="h-2 w-2 animate-soft-pulse rounded-full bg-emerald-500" />
+        <span>Loading dashboard…</span>
       </div>
     );
   }
@@ -70,45 +70,67 @@ function DashboardView({
   const yearsLeft = Math.max(0, summary.target_year - summary.current_year);
 
   return (
-    <div className="reveal space-y-14">
-      {/* ---------- Editorial hero ---------- */}
-      <header className="grid gap-8 md:grid-cols-[1fr_auto] md:items-end pb-2">
-        <div className="space-y-5">
-          <p className="eyebrow flex items-center gap-3">
-            <span className="h-px w-8 bg-forest-500" aria-hidden />
-            City dossier · {summary.current_year}
-          </p>
-          <h1 className="font-display text-[clamp(2.75rem,6vw,4.75rem)] font-semibold leading-[0.95] tracking-tight text-ink">
-            {summary.city_name}.
-          </h1>
-          <p className="max-w-xl text-base text-ink-soft leading-relaxed">
-            A live ledger of every climate action committed to bring{" "}
-            <span className="font-medium text-ink">{summary.city_name}</span> to
-            net-zero by{" "}
-            <span className="font-medium text-ink">{summary.target_year}</span>.
-            Updated continuously as the city files new actions.
-          </p>
+    <div className="reveal space-y-10">
+      {/* ---------- Hero ---------- */}
+      <section className="relative overflow-hidden rounded-2xl border border-ink-line/50 bg-bg-elev bg-radial-leaf topo-bg shadow-soft">
+        {/* Decorative organic blobs */}
+        <span
+          aria-hidden
+          className="blob -right-16 -top-20 h-72 w-72 bg-emerald-200 animate-float"
+        />
+        <span
+          aria-hidden
+          className="blob -bottom-24 right-20 h-48 w-48 bg-sky-100"
+        />
+
+        <div className="relative grid gap-10 px-8 py-10 md:grid-cols-[1.6fr_1fr] md:items-center md:px-12 md:py-14">
+          <div className="space-y-5">
+            <span className="inline-flex items-center gap-2 rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-800">
+              <span
+                aria-hidden
+                className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-soft-pulse"
+              />
+              Live · updated {summary.current_year}
+            </span>
+
+            <h1 className="text-[clamp(2.5rem,5.5vw,4rem)] font-extrabold leading-[1.02] tracking-tight text-ink">
+              {summary.city_name}&rsquo;s journey to{" "}
+              <span className="text-emerald-600">net zero</span>.
+            </h1>
+
+            <p className="max-w-xl text-base leading-relaxed text-ink-soft">
+              A live ledger of every climate action committed to bring{" "}
+              <span className="font-semibold text-ink">{summary.city_name}</span>{" "}
+              to carbon neutrality by{" "}
+              <span className="font-semibold text-ink">
+                {summary.target_year}
+              </span>
+              . Updated continuously as the city files new actions.
+            </p>
+          </div>
+
+          <dl className="grid grid-cols-3 gap-4 rounded-xl border border-ink-line/50 bg-bg/60 p-5 backdrop-blur-sm">
+            <Stat
+              label="Baseline"
+              value={summary.baseline_emissions.toLocaleString()}
+              unit="t CO₂/yr"
+            />
+            <Stat
+              label="Target"
+              value={String(summary.target_year)}
+              unit="net zero"
+            />
+            <Stat
+              label="Window"
+              value={String(yearsLeft)}
+              unit={yearsLeft === 1 ? "year left" : "years left"}
+            />
+          </dl>
         </div>
+      </section>
 
-        <dl className="grid grid-cols-3 gap-x-8 gap-y-1 text-right md:text-left border-l border-ink-line/70 md:pl-8 pt-2">
-          <Stat
-            label="Baseline"
-            value={summary.baseline_emissions.toLocaleString()}
-            unit="t CO₂/yr"
-          />
-          <Stat label="Target" value={String(summary.target_year)} unit="net zero" />
-          <Stat
-            label="Window"
-            value={String(yearsLeft)}
-            unit={yearsLeft === 1 ? "year left" : "years left"}
-          />
-        </dl>
-      </header>
-
-      <div className="rule-leaf" aria-hidden />
-
-      {/* ---------- Status row: progress + verdict ---------- */}
-      <section className="grid gap-6 lg:grid-cols-3">
+      {/* ---------- Status row ---------- */}
+      <section className="grid gap-5 lg:grid-cols-3">
         <ProgressCard
           summary={summary}
           progressPercent={progressPercent}
@@ -117,16 +139,13 @@ function DashboardView({
         <OnTrackCard onTrack={summary.on_track} />
       </section>
 
-      {/* ---------- Projection chart ---------- */}
       <ProjectionChart summary={summary} actions={actions} />
 
-      {/* ---------- Sector breakdown ---------- */}
       <SectorBreakdown
         bySector={summary.by_sector}
         total={summary.total_reduction}
       />
 
-      {/* ---------- Methodology ---------- */}
       <Methodology
         currentYear={summary.current_year}
         targetYear={summary.target_year}
@@ -147,10 +166,10 @@ function Stat({
 }) {
   return (
     <div className="flex flex-col gap-1">
-      <dt className="eyebrow">{label}</dt>
-      <dd className="stat text-xl font-medium text-ink leading-none">
-        {value}
-      </dd>
+      <dt className="text-[10px] font-semibold uppercase tracking-eyebrow text-ink-mute">
+        {label}
+      </dt>
+      <dd className="stat text-lg font-bold leading-none text-ink">{value}</dd>
       <dd className="text-[11px] text-ink-mute">{unit}</dd>
     </div>
   );
