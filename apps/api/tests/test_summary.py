@@ -148,3 +148,9 @@ def test_summary_404(client):
 def test_summary_uses_current_year_when_no_as_of(client, seeded_city):
     body = client.get(f"/cities/{seeded_city.id}/summary").json()
     assert body["current_year"] >= 2024
+
+
+def test_summary_on_archived_city_404(client, seeded_city):
+    client.delete(f"/cities/{seeded_city.id}")
+    resp = client.get(f"/cities/{seeded_city.id}/summary")
+    assert resp.status_code == 404

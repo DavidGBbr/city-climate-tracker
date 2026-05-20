@@ -1,6 +1,6 @@
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlmodel import Session, select
 
 from ..auth.deps import require_admin
@@ -13,9 +13,20 @@ from .schemas import ActionCreate, ActionRead, ActionUpdate
 router = APIRouter(tags=["actions"])
 
 
+def _ensure_city_active(session: Session, city_id: UUID) -> City:
+    """Resolve the city; 409 if it is archived."""
+    city = get_or_404(session, City, city_id, "City")
+    if city.deleted_at is not None:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="City is archived; restore it first.",
+        )
+    return city
+
+
 @router.get("/cities/{city_id}/actions", response_model=list[ActionRead])
 def list_actions(city_id: UUID, session: Session = Depends(get_session)):
-    get_or_404(session, City, city_id, "City")
+    get_or_404(session, City, city_id, "City", filter_active=True)
     return session.exec(
         select(Action).where(Action.city_id == city_id).order_by(Action.start_year)
     ).all()
@@ -32,7 +43,7 @@ def create_action(
     payload: ActionCreate,
     session: Session = Depends(get_session),
 ):
-    get_or_404(session, City, city_id, "City")
+    _ensure_city_active(session, city_id)
     action = Action(city_id=city_id, **payload.model_dump())
     session.add(action)
     session.commit()
@@ -42,7 +53,10 @@ def create_action(
 
 @router.get("/actions/{action_id}", response_model=ActionRead)
 def get_action(action_id: UUID, session: Session = Depends(get_session)):
-    return get_or_404(session, Action, action_id, "Action")
+    action = get_or_404(session, Action, action_id, "Action")
+    # Hide actions whose parent city has been archived.
+    get_or_404(session, City, action.city_id, "Action", filter_active=True)
+    return action
 
 
 @router.patch(
@@ -56,6 +70,7 @@ def update_action(
     session: Session = Depends(get_session),
 ):
     action = get_or_404(session, Action, action_id, "Action")
+    _ensure_city_active(session, action.city_id)
     for field, value in payload.model_dump(exclude_unset=True).items():
         setattr(action, field, value)
     session.add(action)
@@ -71,6 +86,7 @@ def update_action(
 )
 def delete_action(action_id: UUID, session: Session = Depends(get_session)):
     action = get_or_404(session, Action, action_id, "Action")
+    _ensure_city_active(session, action.city_id)
     session.delete(action)
     session.commit()
     return None

@@ -19,7 +19,7 @@ def get_summary(
     as_of: int | None = None,
     session: Session = Depends(get_session),
 ):
-    city = get_or_404(session, City, city_id, "City")
+    city = get_or_404(session, City, city_id, "City", filter_active=True)
     actions = session.exec(select(Action).where(Action.city_id == city_id)).all()
     summary = build_summary(city, list(actions), as_of_year=as_of)
     return asdict(summary)

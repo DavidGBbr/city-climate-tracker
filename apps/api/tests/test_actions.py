@@ -84,3 +84,51 @@ def test_delete_action(client, seeded_city):
 def test_delete_action_404(client):
     response = client.delete(f"/actions/{uuid4()}")
     assert response.status_code == 404
+
+
+def test_create_action_on_archived_city_409(client, seeded_city):
+    client.delete(f"/cities/{seeded_city.id}")
+    resp = client.post(
+        f"/cities/{seeded_city.id}/actions",
+        json={
+            "title": "Should fail",
+            "sector": "transport",
+            "annual_reduction": 100,
+            "status": "planned",
+            "start_year": 2030,
+        },
+    )
+    assert resp.status_code == 409
+
+
+def test_list_actions_on_archived_city_404(client, seeded_city):
+    client.delete(f"/cities/{seeded_city.id}")
+    resp = client.get(f"/cities/{seeded_city.id}/actions")
+    assert resp.status_code == 404
+
+
+def test_update_action_on_archived_city_409(client, seeded_city, session):
+    from app.actions.models import Action
+    from sqlmodel import select
+    action = session.exec(select(Action).where(Action.city_id == seeded_city.id)).first()
+    assert action is not None, "Seeded city should have at least one action"
+    action_id = action.id
+
+    client.delete(f"/cities/{seeded_city.id}")
+    resp = client.patch(
+        f"/actions/{action_id}",
+        json={"title": "Will not save"},
+    )
+    assert resp.status_code == 409
+
+
+def test_delete_action_on_archived_city_409(client, seeded_city, session):
+    from app.actions.models import Action
+    from sqlmodel import select
+    action = session.exec(select(Action).where(Action.city_id == seeded_city.id)).first()
+    assert action is not None
+    action_id = action.id
+
+    client.delete(f"/cities/{seeded_city.id}")
+    resp = client.delete(f"/actions/{action_id}")
+    assert resp.status_code == 409
