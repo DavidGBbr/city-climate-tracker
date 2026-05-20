@@ -53,4 +53,4 @@ def test_seed_is_idempotent(session):
     first = seed_if_empty(session)
     second = seed_if_empty(session)
     assert first.id == second.id
-    assert len(session.exec(select(City)).all()) == 1
+    assert len(session.exec(select(City)).all()) == 6

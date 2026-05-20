@@ -70,6 +70,6 @@ def anon_client(engine) -> Iterator[TestClient]:
 def seeded_city(client, engine) -> City:
     """Greenville is seeded by the FastAPI lifespan; resolve its UUID for tests."""
     with Session(engine) as s:
-        city = s.exec(select(City)).one()
+        city = s.exec(select(City).where(City.name == "Greenville")).one()
         s.expunge(city)
         return city

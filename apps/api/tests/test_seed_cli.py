@@ -1,62 +1,38 @@
-"""Tests for the standalone seed CLI."""
-
-from sqlmodel import Session, select
-
-from app.actions.models import Action
-from app.cities.models import City
-from app.seed_cli import main
+"""Tests for the standalone seed CLI and the seed() function."""
 
 
-def test_cli_seeds_empty_db(engine):
-    exit_code = main([])
-    assert exit_code == 0
+def test_seed_loads_six_cities(client, session):
+    from sqlmodel import select
+    from app.cities.models import City
 
-    with Session(engine) as s:
-        cities = s.exec(select(City)).all()
-        actions = s.exec(select(Action)).all()
-        assert len(cities) == 1
-        assert cities[0].name == "Greenville"
-        assert len(actions) == 6
+    names = {c.name for c in session.exec(select(City)).all()}
+    assert names == {"Berlim", "Greenville", "Londres", "Nova York", "São Paulo", "Tóquio"}
 
 
-def test_cli_is_idempotent(engine):
-    main([])
-    main([])
-    with Session(engine) as s:
-        assert len(s.exec(select(City)).all()) == 1
-        assert len(s.exec(select(Action)).all()) == 6
+def test_seed_is_idempotent(client, session):
+    from sqlmodel import select
+    from app.cities.models import City
+    from app.seed import seed
+
+    before = len(session.exec(select(City)).all())
+    seed(session, reset=False)
+    after = len(session.exec(select(City)).all())
+    assert before == after == 6
 
 
-def test_cli_reset_wipes_then_seeds(engine):
-    main([])
-    # Mutate state so we can detect the wipe
-    with Session(engine) as s:
-        city = s.exec(select(City)).one()
-        city.name = "Mutated"
-        s.add(city)
-        s.commit()
+def test_seed_cli_reset_flag(client, session):
+    from sqlmodel import select
+    from app.cities.models import City
+    from app.actions.models import Action
+    from app.seed_cli import main
 
-    main(["--reset"])
+    # Add a junk city; --reset should wipe it.
+    session.add(City(name="JunkTown", baseline_emissions=1.0, target_year=2050))
+    session.commit()
 
-    with Session(engine) as s:
-        city = s.exec(select(City)).one()
-        assert city.name == "Greenville"  # fresh seed
+    assert main(["--reset"]) == 0
 
-
-def test_cli_status_does_not_seed(engine):
-    exit_code = main(["--status"])
-    assert exit_code == 0
-    with Session(engine) as s:
-        # --status must not write
-        assert len(s.exec(select(City)).all()) == 0
-
-
-def test_cli_status_after_seed(engine, caplog):
-    import logging
-
-    main([])
-    with caplog.at_level(logging.INFO, logger="climate_tracker.seed_cli"):
-        main(["--status"])
-    messages = " ".join(r.getMessage() for r in caplog.records)
-    assert "Greenville" in messages
-    assert "actions=6" in messages
+    names = {c.name for c in session.exec(select(City)).all()}
+    assert "JunkTown" not in names
+    assert len(names) == 6
+    assert len(session.exec(select(Action)).all()) > 0

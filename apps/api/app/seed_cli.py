@@ -15,22 +15,15 @@ import argparse
 import logging
 import sys
 
-from sqlmodel import Session, delete, select
+from sqlmodel import Session, select
 
 from .core.db import get_engine, init_db
 from .actions.models import Action
 from .cities.models import City
-from .seed import seed_if_empty
+from .seed import seed
 
 logger = logging.getLogger("climate_tracker.seed_cli")
 logging.basicConfig(level=logging.INFO, format="[%(name)s] %(message)s")
-
-
-def _reset(session: Session) -> None:
-    logger.info("Wiping existing cities and actions…")
-    session.exec(delete(Action))  # type: ignore[arg-type]
-    session.exec(delete(City))  # type: ignore[arg-type]
-    session.commit()
 
 
 def _status(session: Session) -> int:
@@ -76,21 +69,15 @@ def main(argv: list[str] | None = None) -> int:
             count = _status(session)
             return 0 if count >= 0 else 1
 
-        if args.reset:
-            _reset(session)
-
-        city = seed_if_empty(session)
-        action_count = len(
-            session.exec(select(Action).where(Action.city_id == city.id)).all()
-        )
-        logger.info(
-            "Seeded %s · id=%s · baseline=%s t/yr · target=%s · actions=%d",
-            city.name,
-            city.id,
-            city.baseline_emissions,
-            city.target_year,
-            action_count,
-        )
+        cities = seed(session, reset=args.reset)
+        for city in cities:
+            action_count = len(
+                session.exec(select(Action).where(Action.city_id == city.id)).all()
+            )
+            logger.info(
+                "Seeded %s · id=%s · baseline=%s t/yr · target=%s · actions=%d",
+                city.name, city.id, city.baseline_emissions, city.target_year, action_count,
+            )
     return 0
 
 

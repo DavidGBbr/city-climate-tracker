@@ -11,7 +11,7 @@ from .auth.router import router as auth_router
 from .cities.router import router as cities_router
 from .core.db import get_engine, get_session, init_db
 from .core.errors import register_error_handlers
-from .seed import seed_if_empty
+from .seed import seed
 from .summary.router import router as summary_router
 
 
@@ -19,7 +19,7 @@ from .summary.router import router as summary_router
 async def lifespan(_: FastAPI):
     init_db()
     with Session(get_engine()) as s:
-        seed_if_empty(s)
+        seed(s)
     yield
 
 

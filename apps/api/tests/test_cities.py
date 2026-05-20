@@ -6,9 +6,11 @@ def test_list_cities_returns_seeded(client, seeded_city):
     assert response.status_code == 200
     body = response.json()
     assert isinstance(body, list)
-    assert len(body) == 1
-    assert body[0]["id"] == str(seeded_city.id)
-    assert body[0]["name"] == "Greenville"
+    assert len(body) == 6
+    names = {c["name"] for c in body}
+    assert names == {"Berlim", "Greenville", "Londres", "Nova York", "São Paulo", "Tóquio"}
+    greenville = next(c for c in body if c["name"] == "Greenville")
+    assert greenville["id"] == str(seeded_city.id)
 
 
 def test_get_city_returns_greenville_seed(client, seeded_city):
