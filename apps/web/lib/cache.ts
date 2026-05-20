@@ -8,6 +8,7 @@ import { mutate } from "swr";
 
 export const KEYS = {
   cities: "/cities" as const,
+  adminCities: "/cities?include_deleted=true" as const,
   city: (id: string) => `/cities/${id}` as const,
   actions: (cityId: string) => `/cities/${cityId}/actions` as const,
   summary: (cityId: string, asOf?: number) =>
@@ -20,6 +21,7 @@ export const KEYS = {
 export async function revalidateCity(cityId: string) {
   await Promise.all([
     mutate(KEYS.cities),
+    mutate(KEYS.adminCities),
     mutate(KEYS.city(cityId)),
     mutate(KEYS.actions(cityId)),
     mutate(KEYS.summary(cityId)),
