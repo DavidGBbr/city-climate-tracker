@@ -17,6 +17,7 @@ The admin password is shared (single-admin model — see [docs/DECISIONS.md](doc
 - Pick any city from the selector
 - See baseline emissions, target year, and the action ledger
 - Summary dashboard: total estimated reductions vs. baseline, breakdown by sector, an on-track/off-track signal
+- **Projected emissions chart** — year-by-year trajectory from baseline to target year, with the linear pacing target overlaid; today's marker fixes the eye on the gap between commitment and reality
 - "On track" pacing uses the **earliest action start year** as the journey clock, not an arbitrary program year — see `apps/api/app/services/summary.py`
 
 **Admin workspace** (`/admin`)

@@ -42,7 +42,7 @@ The result: Greenville reads "off track" (25.6% covered vs 30.77% expected) — 
 
 ## What I'd improve given more time
 
-- A small **projected-emissions chart** on the public dashboard (linear projection vs. cumulative reductions per year) — the math is already in `summary.py`, just needs a Recharts component.
-- **Auth for `/admin`** — currently the route is open. NextAuth with magic links would be ~30 min.
-- **Multi-city** — the data model already supports it (Greenville is just the seed). The frontend needs a city-switcher in the header.
+- **Per-action ramp-up curves** for the projection chart — today every action contributes its full `annual_reduction` from `start_year` onward; real rollouts ramp up over a few years. Cheapest honest fix: an optional `ramp_years` field.
 - **Real eval set for the extractor** — 10–20 paragraphs with hand-labeled drafts to track regression as the prompt or model changes.
+- **BFF proxy** to move the admin token to an httpOnly cookie — today it's `SameSite=Lax` but readable from JS so the SWR layer can forward it as `Authorization: Bearer`. Acceptable for a single-admin demo; not for production.
+- **Per-user roles** instead of a single shared password — needs a real identity provider (OIDC).

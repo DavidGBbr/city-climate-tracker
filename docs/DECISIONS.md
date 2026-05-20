@@ -67,9 +67,15 @@ All FastAPI errors return `{ "error": "<code>", "message": "<human>", "details"?
 
 GitHub Actions on push to `main`: build images, SSH into VPS, `docker compose up -d`, wait for `https://oef.gestaoia.cloud/` to return 200. Traefik handles routing and TLS via Let's Encrypt for both web and api subdomains. Alembic runs `upgrade head` on container start, so schema migrations happen automatically; rollback is `docker compose pull <previous-tag>`.
 
+## Projected emissions chart
+
+Year-by-year area chart on the public dashboard. Two lines: the dashed **linear pacing target** from `journey_start` to `target_year`, and the solid **projected with current actions** curve that subtracts cumulative annual reductions from the baseline, with a `Today` vertical marker.
+
+- Projection rule (called out in the chart caption): every registered action delivers its full `annual_reduction` from its `start_year` onward, regardless of status. Same posture as the summary signal — citizens see the *committed* trajectory, not just the shipped one.
+- Acknowledged simplification: a per-action ramp-up curve (e.g. "10% in year 1, 60% in year 2") would be more honest. Flat from start_year is the cheapest correct model that doesn't lie. Documented in the figure caption.
+
 ## What I deliberately skipped
 
-- **Charts** — the math is in `summary.py` but a Recharts component would be 30 min of UI polish, not new capability.
-- **Per-action contribution curves** (an action starting in 2026 contributes 0 in 2025) — currently we sum `annual_reduction` flat. Acceptable for the dashboard signal; matters for a projected-emissions line chart.
+- **Per-action contribution curves** (an action starting in 2026 contributes 0 in 2025 — already handled; what's *not* handled is a ramp-up curve within an action's lifetime). Acceptable for the dashboard signal; matters if you want to model rollout realistically.
 - **Eval set for the extractor** — 10–20 hand-labeled paragraphs would let us track regression as the prompt or model evolves. Listed in the write-up as next-on-the-list.
 - **Multi-tenant auth** — a single shared admin matches the brief; per-user roles would require a real identity provider.
