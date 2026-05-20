@@ -1,5 +1,7 @@
 # AI Workflow Write-up
 
+> **Total build time: ~4 hours.** One focused session, end-to-end: schema + migrations, CRUD, LangChain extractor with offline test stub, Next.js admin + public surfaces, soft-delete lifecycle, projection chart, 80 passing tests, Dockerized CI/CD to a VPS with Traefik + TLS. The discipline below is what made 4h enough — not the model, the workflow.
+
 ## 1. Tools and general workflow
 
 - **Claude Code (CLI)** as the primary driver — long-running session with full repo context.

@@ -2,6 +2,8 @@
 
 OEF AI-Native Software Engineer Exercise — a lightweight web app for city climate teams to manage actions and citizens to track progress toward net-zero targets.
 
+> **Delivered in ~4 hours of focused work** (one session, Claude Code as primary driver). Scope below — including AI extraction, projection chart, soft-delete lifecycle, 80 tests, CI/CD to a VPS with TLS — was shipped within that window. See [AI-WORKFLOW.md](AI-WORKFLOW.md) for how.
+
 ## Live demo
 
 | Surface | URL | Credentials |
