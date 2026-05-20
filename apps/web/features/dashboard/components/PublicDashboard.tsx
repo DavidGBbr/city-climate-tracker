@@ -1,10 +1,12 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { z } from "zod";
 
 import { ErrorMessage } from "@/components/ui";
 import { useActions } from "@/features/actions/hooks";
-import { useDefaultCity } from "@/features/cities/hooks";
+import { CitySelector } from "@/features/cities/components/CitySelector";
+import { useCities } from "@/features/cities/hooks";
 import { ActionSchema, Summary, SummarySchema } from "@/lib/schemas";
 
 import { useSummary } from "../hooks";
@@ -15,27 +17,57 @@ import { ProjectionChart } from "./ProjectionChart";
 import { SectorBreakdown } from "./SectorBreakdown";
 
 export function PublicDashboard() {
-  const { city, isLoading: cityLoading, error: cityError } = useDefaultCity();
-  const { data: raw, isLoading, error } = useSummary(city?.id);
-  const { data: actionsRaw } = useActions(city?.id);
+  const { data: cities, isLoading: citiesLoading, error: citiesError } = useCities();
+  const [selectedId, setSelectedId] = useState<string | null>(null);
 
-  if (cityLoading || isLoading) {
+  useEffect(() => {
+    if (!selectedId && cities && cities.length > 0) {
+      setSelectedId(cities[0].id);
+    }
+  }, [cities, selectedId]);
+
+  const selected = cities?.find((c) => c.id === selectedId) ?? null;
+
+  const { data: raw, isLoading, error } = useSummary(selected?.id);
+  const { data: actionsRaw } = useActions(selected?.id);
+
+  if (citiesLoading) {
     return (
       <div className="flex items-center gap-3 text-sm text-ink-mute">
         <span className="h-2 w-2 animate-soft-pulse rounded-full bg-emerald-500" />
-        <span>Loading dashboard…</span>
+        <span>Loading cities…</span>
       </div>
     );
   }
 
-  if (cityError || !city) {
+  if (citiesError || !cities) {
     return <ErrorMessage>Could not load city configuration.</ErrorMessage>;
   }
 
-  if (error || !raw) {
-    return <ErrorMessage>Could not load progress data.</ErrorMessage>;
+  if (cities.length === 0) {
+    return (
+      <ErrorMessage>
+        No cities are configured yet. Ask an admin to seed the database.
+      </ErrorMessage>
+    );
   }
 
+  return (
+    <div className="space-y-6">
+      <CitySelector cities={cities} value={selectedId} onChange={setSelectedId} />
+
+      {isLoading || !selected ? (
+        <div className="text-sm text-ink-mute">Loading dashboard…</div>
+      ) : error || !raw ? (
+        <ErrorMessage>Could not load progress data.</ErrorMessage>
+      ) : (
+        <DashboardBody raw={raw} actionsRaw={actionsRaw} />
+      )}
+    </div>
+  );
+}
+
+function DashboardBody({ raw, actionsRaw }: { raw: unknown; actionsRaw: unknown }) {
   const parsed = SummarySchema.safeParse(raw);
   if (!parsed.success) {
     return (
@@ -44,9 +76,7 @@ export function PublicDashboard() {
       </ErrorMessage>
     );
   }
-
   const actions = z.array(ActionSchema).safeParse(actionsRaw ?? []);
-
   return (
     <DashboardView
       summary={parsed.data}
