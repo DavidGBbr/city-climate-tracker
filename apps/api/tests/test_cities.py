@@ -61,3 +61,22 @@ def test_update_rejects_negative_baseline(client, seeded_city):
 def test_update_404(client):
     response = client.patch(f"/cities/{uuid4()}", json={"baseline_emissions": 1})
     assert response.status_code == 404
+
+
+def test_active_cities_stmt_excludes_archived(session):
+    from datetime import datetime
+    from app.cities.models import City
+    from app.cities.queries import active_cities_stmt
+
+    alive = City(name="Alive", baseline_emissions=1.0, target_year=2050)
+    dead = City(
+        name="Dead", baseline_emissions=1.0, target_year=2050,
+        deleted_at=datetime.utcnow(),
+    )
+    session.add(alive); session.add(dead); session.commit()
+
+    rows = list(session.exec(active_cities_stmt()).all())
+    assert [c.name for c in rows] == ["Alive"]
+
+    rows_all = list(session.exec(active_cities_stmt(include_deleted=True)).all())
+    assert {c.name for c in rows_all} == {"Alive", "Dead"}
