@@ -32,7 +32,29 @@ def set_engine(engine) -> None:
 
 
 def init_db() -> None:
-    SQLModel.metadata.create_all(get_engine())
+    settings = get_settings()
+    engine = get_engine()
+    if (
+        settings.use_metadata_create_all
+        or settings.database_url.startswith("sqlite")
+        or engine.url.get_backend_name() == "sqlite"
+    ):
+        SQLModel.metadata.create_all(engine)
+        return
+    _run_alembic_upgrade()
+
+
+def _run_alembic_upgrade() -> None:
+    from pathlib import Path
+
+    from alembic import command
+    from alembic.config import Config
+
+    ini_path = Path(__file__).resolve().parents[2] / "alembic.ini"
+    cfg = Config(str(ini_path))
+    cfg.set_main_option("script_location", str(ini_path.parent / "migrations"))
+    cfg.set_main_option("sqlalchemy.url", get_settings().database_url)
+    command.upgrade(cfg, "head")
 
 
 def get_session() -> Generator[Session, None, None]:

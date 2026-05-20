@@ -12,6 +12,7 @@ class Settings(BaseSettings):
     admin_password: str = "change-me"
     jwt_secret: str = "dev-secret-change-me"
     jwt_expire_minutes: int = 480
+    use_metadata_create_all: bool = False
 
 
 @lru_cache
