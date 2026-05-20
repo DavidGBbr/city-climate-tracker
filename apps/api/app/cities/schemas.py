@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Optional
 from uuid import UUID
 
@@ -8,6 +9,11 @@ from .models import CityBase
 
 class CityRead(CityBase):
     id: UUID
+    deleted_at: datetime | None = None
+
+
+class CityCreate(CityBase):
+    pass
 
 
 class CityUpdate(SQLModel):
