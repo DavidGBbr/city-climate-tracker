@@ -1,3 +1,4 @@
+from datetime import datetime
 from uuid import UUID, uuid4
 
 from sqlmodel import Field, Relationship, SQLModel
@@ -11,7 +12,8 @@ class CityBase(SQLModel):
 
 class City(CityBase, table=True):
     id: UUID = Field(default_factory=uuid4, primary_key=True)
-    actions: list["Action"] = Relationship(  # noqa: F821  (forward ref to actions.models.Action)
+    deleted_at: datetime | None = Field(default=None, index=True)
+    actions: list["Action"] = Relationship(  # noqa: F821
         back_populates="city",
         sa_relationship_kwargs={"cascade": "all, delete-orphan"},
     )
