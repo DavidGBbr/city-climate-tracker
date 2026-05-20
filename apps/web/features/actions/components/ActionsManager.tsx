@@ -3,16 +3,16 @@
 import { useEffect, useState } from "react";
 
 import { ConfirmDialog, ErrorMessage, Modal } from "@/components/ui";
-import { useDefaultCity } from "@/features/cities/hooks";
 import { ApiError, api } from "@/lib/api";
 import { revalidateCity } from "@/lib/cache";
-import { Action, ActionDraft } from "@/lib/schemas";
+import { Action, ActionDraft, City } from "@/lib/schemas";
 
 import { useActions } from "../hooks";
 import { ActionForm } from "./ActionForm";
 import { ActionsTable } from "./ActionsTable";
 
 export type ActionsManagerProps = {
+  city: City;
   initialDraft?: ActionDraft | null;
   onDraftConsumed?: () => void;
 };
@@ -25,11 +25,11 @@ type ModalState =
   | { kind: "delete"; action: Action };
 
 export function ActionsManager({
+  city,
   initialDraft = null,
   onDraftConsumed,
-}: ActionsManagerProps = {}) {
-  const { city, isLoading: cityLoading, error: cityError } = useDefaultCity();
-  const { data: actions, isLoading, error } = useActions(city?.id);
+}: ActionsManagerProps) {
+  const { data: actions, isLoading, error } = useActions(city.id);
   const [modal, setModal] = useState<ModalState>({ kind: "closed" });
   const [deleting, setDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
@@ -41,11 +41,12 @@ export function ActionsManager({
     }
   }, [initialDraft]);
 
-  if (cityLoading) {
-    return <p className="text-sm text-ink-mute">Loading…</p>;
-  }
-  if (cityError || !city) {
-    return <ErrorMessage>Could not load city configuration.</ErrorMessage>;
+  if (city.deleted_at) {
+    return (
+      <section className="rounded-2xl border border-amber-300 bg-amber-50 px-7 py-5 text-sm text-amber-900">
+        This city is archived. Restore it to make changes.
+      </section>
+    );
   }
 
   function closeModal() {
@@ -60,7 +61,7 @@ export function ActionsManager({
   }
 
   async function handleConfirmDelete() {
-    if (!city || modal.kind !== "delete") return;
+    if (modal.kind !== "delete") return;
     const action = modal.action;
     setDeleteError(null);
     setDeleting(true);

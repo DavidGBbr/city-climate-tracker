@@ -12,19 +12,16 @@ import { ApiError, api } from "@/lib/api";
 import { revalidateCity } from "@/lib/cache";
 import { City, CityUpdateSchema } from "@/lib/schemas";
 
-import { useDefaultCity } from "../hooks";
+type Props = { city: City };
 
-export function CitySettings() {
-  const { city, isLoading, error } = useDefaultCity();
-
-  if (isLoading) {
-    return <p className="text-sm text-ink-mute">Loading city…</p>;
+export function CitySettings({ city }: Props) {
+  if (city.deleted_at) {
+    return (
+      <section className="rounded-2xl border border-amber-300 bg-amber-50 px-7 py-5 text-sm text-amber-900">
+        This city is archived. Restore it to make changes.
+      </section>
+    );
   }
-
-  if (error || !city) {
-    return <ErrorMessage>Could not load city configuration.</ErrorMessage>;
-  }
-
   return <CitySettingsForm city={city} />;
 }
 
