@@ -37,3 +37,32 @@ oef/
 ```
 
 More docs (running tests, architecture decisions, AI workflow write-up) ship with later tasks.
+
+## Database migrations
+
+Schema is managed by Alembic (`apps/api/migrations/`). On `docker compose up`, the api container runs `alembic upgrade head` before uvicorn. Seed data (6 sample cities) loads automatically via the FastAPI lifespan on first boot.
+
+**Local commands** (from `apps/api/`):
+
+```bash
+uv run alembic upgrade head        # apply pending migrations
+uv run alembic downgrade -1        # roll back one
+uv run alembic revision -m "..."   # create a new migration
+```
+
+**Resetting the database for demos:**
+
+```bash
+docker compose down -v
+docker compose up -d
+```
+
+Or, keep the volume but reseed:
+
+```bash
+docker compose exec api python -m app.seed_cli --reset
+```
+
+**Existing developer databases** (pre-Alembic): drop the volume, OR run `uv run alembic stamp 0001_initial && uv run alembic upgrade head` to adopt the migration chain without losing data.
+
+**Windows note:** if `localhost:5432` is occupied by a native Postgres service, host-side alembic against the dev DB will fail with auth errors. Run alembic from inside the api container (`docker compose exec api alembic upgrade head`) or stop the native service.
