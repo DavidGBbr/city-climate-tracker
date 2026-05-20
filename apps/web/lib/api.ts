@@ -5,7 +5,17 @@
  * - Body parsing handled here; downstream callers can validate with Zod.
  */
 
+import { ADMIN_TOKEN_COOKIE } from "@/lib/auth-constants";
+
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
+
+function readAdminToken(): string | null {
+  if (typeof document === "undefined") return null;
+  const match = document.cookie
+    .split("; ")
+    .find((row) => row.startsWith(`${ADMIN_TOKEN_COOKIE}=`));
+  return match ? decodeURIComponent(match.split("=")[1]) : null;
+}
 
 export type ApiErrorBody = {
   error: string;
@@ -34,10 +44,12 @@ async function parseJsonSafe(res: Response): Promise<ApiErrorBody | null> {
 }
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
+  const token = readAdminToken();
   const res = await fetch(`${BASE_URL}${path}`, {
     cache: "no-store",
     headers: {
       "Content-Type": "application/json",
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
       ...(init?.headers ?? {}),
     },
     ...init,

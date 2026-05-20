@@ -1,23 +1,22 @@
 import { NextRequest, NextResponse } from "next/server";
 
-/**
- * Stub authentication for the admin area.
- *
- * Currently a no-op: every request to /admin/* is allowed through. When real
- * auth is wired up, replace ``isAdminAuthenticated`` with a check against a
- * session cookie, JWT, or upstream identity provider — the rest of the file
- * stays the same.
- */
-function isAdminAuthenticated(_req: NextRequest): boolean {
-  // TODO(auth): inspect session cookie / Authorization header here.
-  return true;
-}
+import { ADMIN_TOKEN_COOKIE } from "@/lib/auth-constants";
 
+/**
+ * Guards /admin/* by requiring the admin_token cookie set after a successful
+ * login. The cookie is opaque to the middleware on purpose: signature
+ * verification happens on the API side (require_admin dep) — here we only gate
+ * navigation. Unauthenticated requests are redirected to /admin/login.
+ */
 export function middleware(req: NextRequest) {
-  if (!isAdminAuthenticated(req)) {
+  if (req.nextUrl.pathname.startsWith("/admin/login")) {
+    return NextResponse.next();
+  }
+  const token = req.cookies.get(ADMIN_TOKEN_COOKIE)?.value;
+  if (!token) {
     const url = req.nextUrl.clone();
-    url.pathname = "/";
-    url.searchParams.set("auth", "required");
+    url.pathname = "/admin/login";
+    url.searchParams.set("next", req.nextUrl.pathname);
     return NextResponse.redirect(url);
   }
   return NextResponse.next();

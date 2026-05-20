@@ -3,6 +3,7 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, status
 from sqlmodel import Session, select
 
+from ..auth.deps import require_admin
 from ..cities.models import City
 from ..core.db import get_session
 from ..core.deps import get_or_404
@@ -24,6 +25,7 @@ def list_actions(city_id: UUID, session: Session = Depends(get_session)):
     "/cities/{city_id}/actions",
     response_model=ActionRead,
     status_code=status.HTTP_201_CREATED,
+    dependencies=[Depends(require_admin)],
 )
 def create_action(
     city_id: UUID,
@@ -43,7 +45,11 @@ def get_action(action_id: UUID, session: Session = Depends(get_session)):
     return get_or_404(session, Action, action_id, "Action")
 
 
-@router.patch("/actions/{action_id}", response_model=ActionRead)
+@router.patch(
+    "/actions/{action_id}",
+    response_model=ActionRead,
+    dependencies=[Depends(require_admin)],
+)
 def update_action(
     action_id: UUID,
     payload: ActionUpdate,
@@ -58,7 +64,11 @@ def update_action(
     return action
 
 
-@router.delete("/actions/{action_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete(
+    "/actions/{action_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    dependencies=[Depends(require_admin)],
+)
 def delete_action(action_id: UUID, session: Session = Depends(get_session)):
     action = get_or_404(session, Action, action_id, "Action")
     session.delete(action)

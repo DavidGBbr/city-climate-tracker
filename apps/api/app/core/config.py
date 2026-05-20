@@ -9,6 +9,9 @@ class Settings(BaseSettings):
     database_url: str = "postgresql+psycopg://climate:climate@postgres:5432/climate_tracker"
     openai_api_key: str = ""
     openai_model: str = "gpt-4o-mini"
+    admin_password: str = "change-me"
+    jwt_secret: str = "dev-secret-change-me"
+    jwt_expire_minutes: int = 480
 
 
 @lru_cache

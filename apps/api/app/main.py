@@ -7,6 +7,7 @@ from sqlmodel import Session
 
 from .actions.router import router as actions_router
 from .ai.router import router as ai_router
+from .auth.router import router as auth_router
 from .cities.router import router as cities_router
 from .core.db import get_engine, get_session, init_db
 from .core.errors import register_error_handlers
@@ -38,6 +39,7 @@ app.add_middleware(
 
 register_error_handlers(app)
 
+app.include_router(auth_router)
 app.include_router(cities_router)
 app.include_router(actions_router)
 app.include_router(summary_router)
