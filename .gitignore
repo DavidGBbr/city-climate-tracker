@@ -35,6 +35,7 @@ yarn-error.log*
 .DS_Store
 Thumbs.db
 .claude/
+docs/superpowers/
 
 # Stray lockfile (api uses uv, not npm)
 apps/api/package-lock.json

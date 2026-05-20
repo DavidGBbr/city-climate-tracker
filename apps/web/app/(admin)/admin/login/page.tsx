@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { Suspense, useState } from "react";
 
 import { Button, ErrorMessage } from "@/components/ui";
@@ -14,7 +14,6 @@ type TokenResponse = {
 };
 
 function LoginForm() {
-  const router = useRouter();
   const search = useSearchParams();
   const next = search.get("next") || "/admin";
 
@@ -33,8 +32,8 @@ function LoginForm() {
     try {
       const res = await api.post<TokenResponse>("/auth/login", { password });
       setAdminToken(res.access_token, res.expires_in);
-      router.replace(next);
-      router.refresh();
+      window.location.assign(next);
+      return;
     } catch (err) {
       if (err instanceof ApiError && err.status === 401) {
         setError("Invalid password.");
