@@ -6,6 +6,7 @@ services:
   api:
     restart: unless-stopped
     volumes: !reset []
+    ports: !reset []
     command: sh -c "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8000"
     healthcheck:
       test: ["CMD", "curl", "-fsS", "http://localhost:8000/health"]
@@ -13,6 +14,17 @@ services:
       timeout: 5s
       retries: 5
       start_period: 30s
+    networks:
+      - default
+      - traefik
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=root_default"
+      - "traefik.http.routers.oef-api.entrypoints=web,websecure"
+      - "traefik.http.routers.oef-api.rule=Host(`api.oef.gestaoia.cloud`)"
+      - "traefik.http.routers.oef-api.tls=true"
+      - "traefik.http.routers.oef-api.tls.certresolver=mytlschallenge"
+      - "traefik.http.services.oef-api.loadbalancer.server.port=8000"
 
   web:
     restart: unless-stopped
@@ -22,4 +34,21 @@ services:
       args:
         NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
     volumes: !reset []
+    ports: !reset []
     command: !reset null
+    networks:
+      - default
+      - traefik
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=root_default"
+      - "traefik.http.routers.oef-web.entrypoints=web,websecure"
+      - "traefik.http.routers.oef-web.rule=Host(`oef.gestaoia.cloud`)"
+      - "traefik.http.routers.oef-web.tls=true"
+      - "traefik.http.routers.oef-web.tls.certresolver=mytlschallenge"
+      - "traefik.http.services.oef-web.loadbalancer.server.port=3000"
+
+networks:
+  traefik:
+    name: root_default
+    external: true
