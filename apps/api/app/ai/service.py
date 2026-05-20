@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import hashlib
 import logging
+from datetime import date
 from functools import lru_cache
 from typing import Any, Protocol
 
@@ -29,6 +30,10 @@ logger = logging.getLogger("climate_tracker.ai")
 SYSTEM_PROMPT = (
     "You extract a single municipal climate action from free-text policy or "
     "meeting notes.\n\n"
+    "Today's date is {today}. Use it to resolve relative time expressions "
+    "such as 'next year', 'within two years', 'by the end of the decade'. "
+    "Never emit a start_year earlier than the current year unless the text "
+    "states an explicit past year.\n\n"
     "Schema constraints:\n"
     "  - title: short label, 3–80 chars (e.g. 'LED street lighting conversion')\n"
     "  - sector: one of [transport, energy, buildings, waste, land use]\n"
@@ -38,8 +43,10 @@ SYSTEM_PROMPT = (
     "Rules:\n"
     "  - Always emit valid JSON matching the schema.\n"
     "  - If a value is implied but not explicit, infer it from context.\n"
-    "  - Prefer the smallest reasonable annual_reduction the text supports.\n"
+    "  - If the text gives no quantitative reduction figure, set "
+    "annual_reduction to 0 — do NOT invent a number. The admin will edit it.\n"
     "  - Default status to 'planned' when phrasing is forward-looking.\n"
+    "  - If start_year is not stated or inferable, use the current year.\n"
 )
 
 
@@ -88,7 +95,7 @@ class ActionExtractor:
             return cached.model_copy(deep=True)
 
         logger.info("ai.extract.start hash=%s len=%d", short, len(text))
-        result = self._chain.invoke({"text": text})
+        result = self._chain.invoke({"text": text, "today": date.today().isoformat()})
         if not isinstance(result, ActionDraft):  # defensive — schema validation by LC
             result = ActionDraft.model_validate(result)
         logger.info(
