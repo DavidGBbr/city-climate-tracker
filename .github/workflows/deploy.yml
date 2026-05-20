@@ -1,0 +1,50 @@
+name: Deploy to VPS
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          port: ${{ secrets.VPS_PORT }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          script_stop: true
+          script: |
+            set -e
+            cd ${{ secrets.VPS_PROJECT_PATH }}
+            echo ">>> Fetching latest code"
+            git fetch --all --prune
+            git reset --hard origin/main
+            echo ">>> Building and starting containers"
+            docker compose -f docker-compose.yml -f docker-compose.prod.yml --env-file .env up -d --build --remove-orphans
+            echo ">>> Pruning dangling images"
+            docker image prune -f
+            echo ">>> Deployment finished"
+
+      - name: Health check
+        run: |
+          set -e
+          echo "Waiting for API to become healthy..."
+          for i in {1..30}; do
+            if curl -fsS "http://${{ secrets.VPS_HOST }}:8000/health" > /dev/null; then
+              echo "API is healthy"
+              exit 0
+            fi
+            echo "Attempt $i failed, retrying in 5s..."
+            sleep 5
+          done
+          echo "API failed to become healthy in time"
+          exit 1
