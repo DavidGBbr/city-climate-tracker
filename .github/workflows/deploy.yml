@@ -39,7 +39,7 @@ jobs:
           set -e
           echo "Waiting for API to become healthy..."
           for i in {1..30}; do
-            if curl -fsS "http://${{ secrets.VPS_HOST }}:8000/health" > /dev/null; then
+            if curl -fsS "https://api.oef.gestaoia.cloud/health" > /dev/null; then
               echo "API is healthy"
               exit 0
             fi
